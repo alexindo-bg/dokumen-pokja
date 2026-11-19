@@ -14,7 +14,7 @@ const hari = (s) => (s ? HR[pd(s).getDay()] : '......');
 const jam = (s) => String(s || '').slice(11, 16).replace(':', '.');
 const dtm = (s) => (s ? `${hari(s)}, ${tgl(s)}, pukul ${jam(s)} WIB` : '......');
 const num = (s) => Number(String(s || '').replace(/\D/g, '')) || 0;
-const rp = (n) => (n ? 'Rp' + Number(n).toLocaleString('id-ID') + ',00' : '......');
+const rp = (n) => (n ? 'Rp ' + Number(n).toLocaleString('id-ID') + ',00' : '......');
 const SAT = ['', 'satu', 'dua', 'tiga', 'empat', 'lima', 'enam', 'tujuh', 'delapan', 'sembilan', 'sepuluh', 'sebelas'];
 const tb = (n) => {
   n = Math.floor(n);
@@ -61,7 +61,7 @@ Skema penawaran: Mini Kompetisi Itemized, yaitu penawaran, peringkat, dan pemena
 - Penawaran yang telah disampaikan tidak dapat dibatalkan, tetapi dapat diubah selama jadwal penawaran berlangsung (produk, harga, opsi dan harga pengiriman).
 - Peserta dilarang meminjamkan atau menggunakan nama perusahaan pihak lain (pinjam bendera), mengalihkan seluruh pekerjaan kepada pihak lain, melakukan persekongkolan/KKN, atau menyampaikan dokumen/keterangan tidak benar. Pelanggaran mengakibatkan penawaran digugurkan dan dikenakan sanksi sesuai ketentuan.
 # EVALUASI DAN PENETAPAN PEMENANG
-- Peringkat disusun otomatis oleh aplikasi Katalog Elektronik untuk paket per item, berdasarkan prioritas Produk Dalam Negeri (PDN) kemudian harga terendah; untuk pengadaan barang di atas Rp1.000.000.000,00 menggunakan Harga Evaluasi Akhir (HEA) dengan preferensi TKDN.
+- Peringkat disusun otomatis oleh aplikasi Katalog Elektronik untuk paket per item, berdasarkan prioritas Produk Dalam Negeri (PDN) kemudian harga terendah; untuk pengadaan barang di atas Rp 1.000.000.000,00 menggunakan Harga Evaluasi Akhir (HEA) dengan preferensi TKDN.
 - Pokja Pemilihan mengevaluasi peserta peringkat pertama pada paket; apabila tidak memenuhi syarat, evaluasi dilanjutkan ke peringkat berikutnya.
 - Evaluasi meliputi pemenuhan persyaratan peserta (huruf D), pemenuhan spesifikasi teknis dan dokumen pendukung (huruf E), serta kesesuaian data TKDN dengan Daftar Inventarisasi pada tkdn.kemenperin.go.id (apabila produk mencantumkan TKDN).
 - Pokja Pemilihan dapat melakukan klarifikasi, termasuk kebenaran surat dukungan kepada penerbitnya, tanpa mengubah substansi penawaran. Hasil klarifikasi dituangkan dalam Berita Acara Klarifikasi; dokumen yang tidak benar atau tidak sesuai mengakibatkan peserta gugur.
@@ -72,7 +72,7 @@ Skema penawaran: Mini Kompetisi Itemized, yaitu penawaran, peringkat, dan pemena
 - Mini Kompetisi pada paket dapat dibatalkan apabila hanya 1 (satu) peserta yang menyampaikan penawaran, tidak ada penawaran setelah perpanjangan waktu, tidak ada peserta yang memenuhi syarat, terdapat kesalahan evaluasi/prosedur, PPK menolak hasil pemilihan, anggaran tidak mencukupi akibat realokasi, atau alasan lain sesuai ketentuan.
 - Alasan pembatalan diumumkan melalui aplikasi. Tindak lanjutnya berupa Mini Kompetisi ulang, E-purchasing dengan metode lain, atau metode pemilihan lain untuk paket yang bersangkutan.
 # JAMINAN PELAKSANAAN
-- Untuk nilai Surat Pesanan di atas Rp200.000.000,00 pada paket, calon Penyedia wajib menyerahkan Jaminan Pelaksanaan kepada PPK sebelum penandatanganan Surat Pesanan.
+- Untuk nilai Surat Pesanan di atas Rp 200.000.000,00 pada paket, calon Penyedia wajib menyerahkan Jaminan Pelaksanaan kepada PPK sebelum penandatanganan Surat Pesanan.
 - Besaran: 5% dari nilai Surat Pesanan apabila nilai penawaran 80%–100% dari HPS paket; atau 5% dari nilai total HPS paket apabila nilai penawaran di bawah 80% dari HPS.
 - Bentuk bank garansi atau surety bond, tidak bersyarat, mudah dicairkan, dan berlaku sampai serah terima pekerjaan.
 - Calon Penyedia yang tidak menyerahkan Jaminan Pelaksanaan dianggap mengundurkan diri dan dikenakan sanksi sesuai ketentuan.`,
@@ -98,7 +98,7 @@ const tx = (k) => (D.tpl[k] != null && D.tpl[k] !== '' ? D.tpl[k] : TX[k]);
 
 const DEF = () => ({
   set: { klas: 'PL.030', unit: 'A.5.3', kota: 'Bogor', kertas: 'A4', zoomTempat: '', zoomLink: '', zoomId: '', zoomPass: '', zona: 'WIB', pejabat: 'Kepala Biro Umum dan Pengadaan', instansi: 'Kementerian Pertanian', penutupMK: 'a.n. Pokja Pemilihan', an: 'a.n. Kelompok Kerja Pemilihan', unitBaris: 'Biro Umum dan Pengadaan', lap1: 'Kelompok Kerja Pemilihan', lap2: 'Biro Umum dan Pengadaan', penutup: 'Demikian, atas perhatian dan kerjasamanya diucapkan terima kasih.', kop1: 'KEMENTERIAN PERTANIAN', kop2: 'SEKRETARIAT JENDERAL', kop3: 'JALAN HARSONO RM NOMOR 3 PASAR MINGGU, JAKARTA 12550\nKOTAK POS 83/1200/PASARMINGGU\nTELEPON (021) 7804116 – 7806131, FAKSIMILI (021) 7816180\nWEBSITE: https://pertanian.go.id', logo: '' },
-  pokja: [], paket: [], surat: [], tpl: {},
+  pokja: [], paket: [], surat: [], tpl: {}, monitor: [],
 });
 
 /* ===== state & api ===== */
@@ -116,7 +116,7 @@ async function persist() {
   try { V = (await api('ws', 'PUT', { v: V, data: D })).v; setSt('Tersimpan'); }
   catch (e) { if (e.status === 409) { alert(e.message); location.reload(); } else setSt('Gagal menyimpan: ' + e.message); }
 }
-async function load() { const r = await api('ws'); V = r.v; D = r.data || DEF(); D.set = { ...DEF().set, ...D.set }; D.tpl ||= {}; if (!r.data) await persist(); }
+async function load() { const r = await api('ws'); V = r.v; D = r.data || DEF(); D.set = { ...DEF().set, ...D.set }; D.tpl ||= {}; D.monitor ||= []; if (!r.data) await persist(); }
 
 /* ===== autentikasi (kode referral) ===== */
 function authView(mode = 'login', err = '') {
@@ -144,28 +144,69 @@ function authView(mode = 'login', err = '') {
 /* ===== kerangka ===== */
 async function start() {
   await load();
-  L = null; view = 'surat';
+  L = null; view = 'home';
   shell();
 }
+let hq = '';
 function shell() {
   const ini = (U.name || '?').split(/\s+/).map((w) => w[0]).slice(0, 2).join('').toUpperCase();
-  $('#app').innerHTML = `<header class=noprint><b><span class=lg></span>Dokumen Pokja</b><a data-v=surat class="${view === 'surat' ? 'on' : ''}">Surat</a><a data-v=set class="${view === 'set' ? 'on' : ''}">Pengaturan</a><span class=muted id=st style="color:#94a3b8"></span><a id=out title="Keluar">Keluar</a><span class=av>${esc(ini)}</span></header><div id=main></div>`;
-  document.querySelectorAll('header [data-v]').forEach((a) => (a.onclick = () => { view = a.dataset.v; shell(); }));
+  const nav = [['home', 'Beranda', '⌂'], ['surat', 'Buat Surat', '✉'], ['mon', 'Monitoring', '◔'], ['set', 'Pengaturan', '⚙']];
+  $('#app').innerHTML = `<div class=frame><aside class=noprint><div class=prof><span class=av>${esc(ini)}</span><div><b>${esc(U.name)}</b><small>${esc(S().unitBaris)}</small></div></div><input id=gq placeholder="Cari surat atau paket…" value="${esc(hq)}">
+  <h6>Utama</h6>${nav.map(([k, n, c]) => `<a data-v=${k} class="${view === k ? 'on' : ''}"><i>${c}</i>${n}</a>`).join('')}
+  <h6>Paket</h6>${D.paket.slice(0, 10).map((p) => `<a data-pk=${p.id}><i class=dot></i><span class=cl>${esc(p.nama)}</span></a>`).join('') || '<small style="padding:0 12px;color:#888">Belum ada paket</small>'}
+  <h6>Akun</h6><a id=out><i>⇥</i>Keluar</a><small id=st style="padding:6px 12px;color:#888"></small></aside><main class=main id=main></main></div>`;
+  document.querySelectorAll('aside [data-v]').forEach((a) => (a.onclick = () => { view = a.dataset.v; shell(); }));
+  document.querySelectorAll('aside [data-pk]').forEach((a) => (a.onclick = () => { pe = a.dataset.pk; tab = 'paket'; view = 'set'; shell(); }));
+  $('#gq').oninput = (e) => { hq = e.target.value; if (view !== 'home') { view = 'home'; shell(); const g = $('#gq'); g.focus(); g.setSelectionRange(hq.length, hq.length); } else homeList(); };
   $('#out').onclick = async () => { await api('auth?a=logout', 'POST'); U = null; authView(); };
-  view === 'surat' ? suratView() : setView();
+  ({ home: homeView, surat: suratView, mon: monView, set: setView })[view]();
+}
+function openLetter(l) { L = l; view = 'surat'; shell(); }
+function homeList() {
+  const q = hq.toLowerCase(), rec = D.surat.slice().sort((a, b) => b.ts - a.ts).filter((s) => !q || (judul(s) + ' ' + s.no).toLowerCase().includes(q)).slice(0, 12);
+  $('#rc').innerHTML = rec.map((s) => `<div class=it><b>${esc(TPL[s.tpl].n)}${s.no ? ' · ' + s.no : ''}</b><small>${esc((paketOf(s) || {}).nama || '')}</small><small>Dibuat: ${tgl(s.tgl)} · ${esc(s.by || '')}</small><div><button class="btn s" data-o=${s.id}>Buka</button> <button class="btn s" data-c=${s.id}>Buat lagi</button></div></div>`).join('') || '<p class=muted>Belum ada surat.</p>';
+  $('#rc').onclick = (e) => { const o = e.target.dataset.o, c = e.target.dataset.c; if (o) openLetter(JSON.parse(JSON.stringify(D.surat.find((x) => x.id === o)))); if (c) { const x = D.surat.find((y) => y.id === c); openLetter(newLetter(x.tpl, x)); } };
+}
+function homeView() {
+  const now = new Date(), ms = [...Array(6)].map((_, k) => new Date(now.getFullYear(), now.getMonth() - 5 + k, 1));
+  const ct = ms.map((d) => D.surat.filter((s) => { const x = pd(s.tgl || today()); return x.getFullYear() === d.getFullYear() && x.getMonth() === d.getMonth(); }).length), mx = Math.max(3, ...ct);
+  const pts = ct.map((v, k) => [30 + k * 58, 130 - (v / mx) * 105]);
+  const withLap = new Set(D.surat.filter((x) => x.tpl === 'lap').map((x) => x.pid)).size, tot = Math.max(1, D.paket.length), fr = Math.min(1, withLap / tot), C = 2 * Math.PI * 58;
+  const fold = [['Paket', 'paket'], ['Daftar Pokja & TTD', 'pokja'], ['Kode surat & rapat', 'kode'], ['Template teks', 'tpl'], ['Data & cadangan', 'cad']];
+  $('#main').innerHTML = `<h1>Dokumen</h1><div class=hg><div>
+  <div class=cards>${KEYS.map((k) => `<div class=cd><i class=ic>${TPL[k].i}</i><b>${TPL[k].n}</b><p>${TPL[k].d}</p><button class="btn s" data-n=${k}>Buat</button></div>`).join('')}</div>
+  <div class=panel><h3>Pintasan</h3><div class=fold>${fold.map(([n, t]) => `<div data-f=${t}><i></i>${n}</div>`).join('')}<div data-m=1><i></i>Monitoring</div></div></div>
+  <div class=g2><div class=panel><h3>Surat dibuat per bulan</h3><svg viewBox="0 0 350 160" width=100%><polyline fill=none stroke="#e8884a" stroke-width=2 points="${pts.map((p) => p.join(',')).join(' ')}"/>${pts.map((p, k) => `<line x1=${p[0]} x2=${p[0]} y1=${p[1]} y2=135 stroke="#ddd"/><circle cx=${p[0]} cy=${p[1]} r=5 fill="#fff" stroke="#d6204b" stroke-width=3 /><text x=${p[0]} y=152 font-size=10 text-anchor=middle fill="#666">${BL[ms[k].getMonth()].slice(0, 3)}</text><text x=${p[0]} y=${p[1] - 9} font-size=10 text-anchor=middle>${ct[k]}</text>`).join('')}</svg></div>
+  <div class=panel><h3>Paket sudah berlaporan</h3><svg viewBox="0 0 160 160" width=150 style="display:block;margin:auto"><circle cx=80 cy=80 r=58 fill=none stroke="#e8e6e3" stroke-width=16 /><circle cx=80 cy=80 r=58 fill=none stroke="#111" stroke-width=16 stroke-dasharray="${C * fr} ${C}" transform="rotate(-90 80 80)"/><text x=80 y=86 text-anchor=middle font-size=20 font-weight=700>${withLap}/${D.paket.length}</text></svg></div></div></div>
+  <div class=panel style="margin-top:0"><h3>Terakhir dibuat</h3><div id=rc></div></div></div>`;
+  homeList();
+  document.querySelectorAll('#main [data-n]').forEach((b) => (b.onclick = () => openLetter(newLetter(b.dataset.n, { pid: L?.pid }))));
+  document.querySelectorAll('#main [data-f]').forEach((b) => (b.onclick = () => { tab = b.dataset.f; view = 'set'; shell(); }));
+  $('#main [data-m]').onclick = () => { view = 'mon'; shell(); };
+}
+function monView() {
+  const embed = (v) => ((String(v).match(/src=["']([^"']+)/) || [0, v])[1] || '').trim();
+  $('#main').innerHTML = `<h1>Monitoring</h1><div class=panel style="margin-top:0"><div class=g2><div><label>Nama monitoring</label><input id=mn placeholder="mis. Progres paket dolomit"></div><div><label>Tautan Google Sites (atau kode embed)</label><input id=mu placeholder="https://sites.google.com/view/..."></div></div><p><button class="btn p" id=ma>Tambah monitoring</button></p><p class=muted>Pakai situs yang sudah diterbitkan (Google Sites › Terbitkan, akses "Siapa saja"). Jika kotak di bawah kosong, Google/pemilik situs memblokir penyematan; gunakan "Buka di tab baru".</p><div class=err id=me></div></div>
+  ${D.monitor.map((x) => `<div class=panel><div class=row style="border:0;padding:0 0 10px"><b style="flex:1">${esc(x.nama)}</b><a class="btn s" href="${esc(x.url)}" target=_blank rel=noopener style="text-decoration:none;color:inherit">Buka di tab baru</a><button class="btn s" data-r=${x.id}>Ubah</button><button class="btn s" data-d=${x.id}>Hapus</button></div><iframe src="${esc(x.url)}" loading=lazy referrerpolicy=no-referrer allowfullscreen style="width:100%;height:72vh;border:1px solid #e3ded8;border-radius:10px;background:#fff"></iframe></div>`).join('') || '<p class=muted>Belum ada monitoring.</p>'}`;
+  $('#ma').onclick = () => { const u = embed($('#mu').value), n = $('#mn').value.trim(); if (!n || !/^https:\/\//.test(u)) return ($('#me').textContent = 'Isi nama dan tautan https://'); D.monitor.push({ id: uid(), nama: n, url: u }); dirty(); monView(); };
+  $('#main').onclick = (e) => { const t = e.target, m = (id) => D.monitor.find((x) => x.id === id);
+    if (t.dataset.d && confirm('Hapus monitoring ini?')) { D.monitor = D.monitor.filter((x) => x.id !== t.dataset.d); dirty(); monView(); }
+    if (t.dataset.r) { const x = m(t.dataset.r), n = prompt('Nama', x.nama), u = n && embed(prompt('Tautan', x.url) || ''); if (n && /^https:\/\//.test(u)) { x.nama = n; x.url = u; dirty(); monView(); } } };
 }
 
 /* ===== definisi template surat ===== */
 const CARA = ['Daring', 'Luring'];
 const TPL = {
-  reviu: { n: 'Undangan reviu dokumen persiapan', hal: 'Undangan Konsolidasi dan Reviu {dok} {nama}', f: [{ k: 'tglKeg', l: 'Tanggal kegiatan', t: 'date' }, { k: 'jam', l: 'Mulai (jam)', d: '10.00' }, { k: 'cara', l: 'Cara', t: 'sel', o: CARA, d: 'Daring' }, { k: 'dok', l: 'Dokumen yang direviu', d: 'Spesifikasi Teknis dan HPS' }] },
-  dmk: { n: 'Dokumen mini kompetisi', nonum: 1, f: [{ k: 'kat1', l: 'Kategori Tingkat I' }, { k: 'kat2', l: 'Kategori Tingkat II' }, { k: 'kat3', l: 'Kategori Tingkat III' }] },
-  ubah: { n: 'BA perubahan paket kompetisi', f: [{ k: 'semula', l: 'Batas akhir semula', t: 'datetime-local' }, { k: 'baru', l: 'Diperpanjang menjadi', t: 'datetime-local' }] },
-  bukti: { n: 'Undangan pembuktian & klarifikasi', hal: 'Undangan Pembuktian dan Klarifikasi Kualifikasi Penyedia', f: [{ k: 'pic', l: 'Kepada Yth. (mis. Bapak …)' }, { k: 'kepada', l: 'Nama penyedia' }, { k: 'tglKeg', l: 'Tanggal', t: 'date' }, { k: 'jam', l: 'Pukul mulai', d: '14.00' }, { k: 'cara', l: 'Cara', t: 'sel', o: CARA, d: 'Daring' }] },
-  eval: { n: 'BA hasil evaluasi', f: [{ k: 'tglEval', l: 'Tanggal evaluasi', t: 'date' }, { k: 'peserta', l: 'Peserta & hasil — satu per baris: nama | nilai penawaran | keterangan (baris 1 = pemenang)', t: 'area' }] },
-  lap: { n: 'Laporan hasil pemilihan', hal: 'Laporan Hasil Katalog Elektronik Paket {nama}', f: [{ k: 'mulai', l: 'Penayangan mulai', t: 'datetime-local' }, { k: 'selesai', l: 'Penayangan selesai', t: 'datetime-local' }, { k: 'baNo', l: 'Nomor BA hasil evaluasi (otomatis dari BA)' }, { k: 'baTgl', l: 'Tanggal BA', t: 'date' }, { k: 'tglBukti', l: 'Tanggal pembuktian', t: 'date' }, { k: 'peserta', l: 'Peserta & hasil — nama | nilai | keterangan (otomatis dari BA)', t: 'area' }, { k: 'dataPaket', l: 'Tampilkan tabel Data Paket', t: 'chk', d: true }] },
+  reviu: { d: 'Undangan konsolidasi dan reviu dokumen persiapan pengadaan.', i: '✉', n: 'Undangan reviu dokumen persiapan', hal: 'Undangan Konsolidasi dan Reviu {dok} {nama}', f: [{ k: 'tglKeg', l: 'Tanggal kegiatan', t: 'date' }, { k: 'jam', l: 'Mulai (jam)', d: '10.00' }, { k: 'cara', l: 'Cara', t: 'sel', o: CARA, d: 'Daring' }, { k: 'dok', l: 'Dokumen yang direviu', d: 'Spesifikasi Teknis dan HPS' }] },
+  dmk: { d: 'Dokumen ketentuan pelaksanaan mini kompetisi e-purchasing.', i: '▤', n: 'Dokumen mini kompetisi', nonum: 1, f: [{ k: 'kat1', l: 'Kategori Tingkat I' }, { k: 'kat2', l: 'Kategori Tingkat II' }, { k: 'kat3', l: 'Kategori Tingkat III' }] },
+  ubah: { d: 'Berita acara perpanjangan masa tayang paket.', i: '⟳', n: 'BA perubahan paket kompetisi', f: [{ k: 'semula', l: 'Batas akhir semula', t: 'datetime-local' }, { k: 'baru', l: 'Diperpanjang menjadi', t: 'datetime-local' }] },
+  bukti: { d: 'Undangan pembuktian dan klarifikasi kualifikasi penyedia.', i: '✉', n: 'Undangan pembuktian & klarifikasi', hal: 'Undangan Pembuktian dan Klarifikasi Kualifikasi Penyedia', f: [{ k: 'pic', l: 'Kepada Yth. (mis. Bapak …)' }, { k: 'kepada', l: 'Nama penyedia' }, { k: 'tglKeg', l: 'Tanggal', t: 'date' }, { k: 'jam', l: 'Pukul mulai', d: '14.00' }, { k: 'cara', l: 'Cara', t: 'sel', o: CARA, d: 'Daring' }] },
+  eval: { d: 'Berita acara hasil evaluasi, peringkat, dan pemenang.', i: '✓', n: 'BA hasil evaluasi', f: [{ k: 'tglEval', l: 'Tanggal evaluasi', t: 'date' }, { k: 'peserta', l: 'Peserta & hasil — satu per baris: nama | nilai penawaran | keterangan (baris 1 = pemenang)', t: 'area' }] },
+  lap: { d: 'Laporan hasil pemilihan untuk PPK.', i: '▣', n: 'Laporan hasil pemilihan', hal: 'Laporan Hasil Katalog Elektronik Paket {nama}', f: [{ k: 'mulai', l: 'Penayangan mulai', t: 'datetime-local' }, { k: 'selesai', l: 'Penayangan selesai', t: 'datetime-local' }, { k: 'baNo', l: 'Nomor BA hasil evaluasi (otomatis dari BA)' }, { k: 'baTgl', l: 'Tanggal BA', t: 'date' }, { k: 'tglBukti', l: 'Tanggal pembuktian', t: 'date' }, { k: 'peserta', l: 'Peserta & hasil — nama | nilai | keterangan (otomatis dari BA)', t: 'area' }, { k: 'dataPaket', l: 'Tampilkan tabel Data Paket', t: 'chk', d: true }] },
 };
+TPL.kk = { n: 'Kertas kerja evaluasi', d: 'Lembar kerja evaluasi kualifikasi, administrasi, teknis dan harga per peserta, bisa lebih dari 1 produk.', i: '☰', nonum: 1, f: [] };
 const KEYS = Object.keys(TPL);
+const defProd = () => ({ jml: '', sat: 'Kg', hps: '', tot: '', rows: [['Kategori', '', ''], ['KBLI', '', ''], ['Tipe Kategori', 'Barang', 'Barang'], ['Spesifikasi', '', ''], ['Struktur Harga', '', ''], ['Informasi Lainnya', '', '']].map(([l, k, e]) => ({ l, k, e, n: '' })) });
 const paketOf = (l) => D.paket.find((p) => p.id === l.pid);
 const yr = (l) => String(l.tgl || '').slice(0, 4);
 function nextNo(y) { return Math.max(0, ...D.surat.filter((s) => yr(s) === String(y) && TPL[s.tpl] && !TPL[s.tpl].nonum).map((s) => +s.no || 0)) + 1; }
@@ -173,9 +214,10 @@ function bulanNo(l) { const m = pd(l.tgl || today()).getMonth() + 1; return l.bl
 const nomor = (l) => `${l.no || '......'}/${S().klas}/${S().unit}/${bulanNo(l)}/${yr(l)}`;
 
 function newLetter(tpl, from) {
-  const t = TPL[tpl], l = { id: uid(), tpl, pid: from?.pid ?? D.paket[D.paket.length - 1]?.id, tgl: today(), kota: tpl === 'lap' || tpl === 'dmk' ? 'Jakarta' : S().kota, blnMode: 'ikut', scan: true, ang: D.pokja.filter((p) => p.ttd || true).map((p) => p.id), ttd: D.pokja[0]?.id, dataPaket: true };
+  const t = TPL[tpl], l = { id: uid(), tpl, pid: from?.pid ?? D.paket[D.paket.length - 1]?.id, tgl: today(), kota: tpl === 'lap' || tpl === 'dmk' || tpl === 'kk' ? 'Jakarta' : S().kota, blnMode: 'ikut', scan: true, ang: D.pokja.filter((p) => p.ttd || true).map((p) => p.id), ttd: D.pokja[0]?.id, dataPaket: true, judulTengah: true };
+  if (tpl === 'kk') l.prods = [defProd()];
   t.f.forEach((f) => { if (f.d != null) l[f.k] = f.d; });
-  if (from) Object.assign(l, { ...from, id: l.id, tgl: today(), no: undefined });
+  if (from) Object.assign(l, JSON.parse(JSON.stringify(from)), { id: l.id, tgl: today(), no: undefined });
   if (!t.nonum) l.no = nextNo(yr(l));
   if (tpl === 'lap') autoLap(l);
   return l;
@@ -204,7 +246,8 @@ function tempatRows(l) {
 }
 const ttdUndang = (l) => { const p = D.pokja.find((x) => x.id === l.ttd) || {}; return `<div class=ttd>${esc(S().an)}<br>${esc(S().unitBaris)}${l.scan !== false && p.ttd ? sigImg(p) : '<br><br><br>'}${esc(p.nama || '')}</div>`; };
 const angOf = (l) => (l.ang || []).map((id) => D.pokja.find((p) => p.id === id)).filter(Boolean);
-const angTable = (l) => `<table class=b style="margin-top:12px"><tr><th style="width:30px">No</th><th>Nama Anggota Pokja Pemilihan</th><th>Jabatan</th><th>Tanda Tangan</th></tr>${angOf(l).map((p, i) => `<tr><td>${i + 1}</td><td>${esc(p.nama)}${p.nip ? `<br>NIP ${esc(p.nip)}` : ''}</td><td>Anggota Pokja Pemilihan ${i + 1}</td><td style="height:58px">${p.ttd ? `<img src="${p.ttd}" style="max-height:52px;max-width:110px">` : ''}</td></tr>`).join('')}</table>`;
+const angTable = (l) => `<table class=b style="margin-top:12px"><tr><th style="width:30px">No</th><th>Nama Anggota Pokja Pemilihan</th><th>Jabatan</th><th>Tanda Tangan</th></tr>${angOf(l).map((p, i) => `<tr><td>${i + 1}</td><td>${esc(p.nama)}${p.nip ? `<br>NIP ${esc(p.nip)}` : ''}</td><td>Anggota Pokja Pemilihan ${i + 1}</td><td style="height:58px;text-align:center;vertical-align:middle">${p.ttd ? `<img src="${p.ttd}" style="max-height:52px;max-width:110px">` : ''}</td></tr>`).join('')}</table>`;
+const jt = (l, t) => (l.judulTengah !== false ? `<p class=tc style="margin:0 0 16px;text-decoration:underline">${t}</p>` : '');
 const dateLine = (l) => `<p style="text-align:right;margin-bottom:6px">${esc(l.kota)}, ${tgl(l.tgl)}</p>`;
 const headTbl = (l, hal, lamp = '-', right = '') => `<table class=hd style="width:100%"><tr><td style="width:70px">Nomor</td><td>:</td><td>${nomor(l)}</td><td style="text-align:right">${right}</td></tr><tr><td>Lampiran</td><td>:</td><td colspan=2>${lamp}</td></tr><tr><td>Hal</td><td>:</td><td colspan=2>${esc(hal)}</td></tr></table>`;
 const tembus = (t, v) => `<p style="margin-top:22px;margin-bottom:0">Tembusan Yth.:</p>${ol(lines(fill(t, v)).map(esc))}`;
@@ -212,14 +255,14 @@ const tembus = (t, v) => `<p style="margin-top:22px;margin-bottom:0">Tembusan Yt
 const R = {
   reviu(l, p, v) {
     const hal = fill(TPL.reviu.hal, v);
-    return `${headTbl(l, hal, '-', tgl(l.tgl) ? `${esc(l.kota)}, ${tgl(l.tgl)}` : '')}<p style="margin-top:22px;margin-bottom:0">Yth.</p>${ol([esc(p.ppk || 'Pejabat Pembuat Komitmen ' + (p.satker || '')), 'Tim Teknis Kegiatan', esc('Kelompok Kerja Pemilihan Penyedia ' + (p.nama || ''))])}<p style="margin:0">di<br>&nbsp;&nbsp;&nbsp;&nbsp;Tempat</p>
+    return `${jt(l, 'UNDANGAN')}${headTbl(l, hal, '-', tgl(l.tgl) ? `${esc(l.kota)}, ${tgl(l.tgl)}` : '')}<p style="margin-top:22px;margin-bottom:0">Yth.</p>${ol([esc(p.ppk || 'Pejabat Pembuat Komitmen ' + (p.satker || '')), 'Tim Teknis Kegiatan', esc('Kelompok Kerja Pemilihan Penyedia ' + (p.nama || ''))])}<p style="margin:0">di<br>&nbsp;&nbsp;&nbsp;&nbsp;Tempat</p>
     <p style="margin-top:18px">${esc(fill(tx('reviuIsi'), v))}</p><p>Sehubungan dengan hal tersebut kami mengharapkan kehadiran Saudara pada:</p>
     ${kv([['Hari/Tanggal', `${hari(l.tglKeg)}, ${tgl(l.tglKeg)}`], ['Waktu', `${esc(l.jam)} ${S().zona} – Selesai`], ...tempatRows(l), ['Acara', esc('Pembahasan Konsolidasi dan Reviu ' + (l.dok || ''))]], 100)}
     <p>${esc(S().penutup)}</p>${ttdUndang(l)}`;
   },
   bukti(l, p, v) {
     const hal = TPL.bukti.hal;
-    return `${headTbl(l, hal, '-', tgl(l.tgl))}<p style="margin:20px 0 0">Yth.<br>${esc(l.pic)}<br>${esc(l.kepada)}<br>di<br>&nbsp;&nbsp;&nbsp;&nbsp;Tempat</p>
+    return `${jt(l, 'UNDANGAN')}${headTbl(l, hal, '-', tgl(l.tgl))}<p style="margin:20px 0 0">Yth.<br>${esc(l.pic)}<br>${esc(l.kepada)}<br>di<br>&nbsp;&nbsp;&nbsp;&nbsp;Tempat</p>
     <p style="margin-top:18px">${esc(fill(tx('buktiIsi'), v)).replace(/secara (daring|luring)\.?$/, '<b>secara $1</b>.')}</p><p style="margin-bottom:4px">Sehubungan dengan hal tersebut kami mengharapkan kehadiran Saudara pada:</p>
     ${kv([['Hari/Tanggal', `${hari(l.tglKeg)}, ${tgl(l.tglKeg)}`], ['Waktu', `${esc(l.jam)} ${S().zona} – Selesai`], ...tempatRows(l), ['Acara', 'Rapat Pembuktian dan Klarifikasi Kualifikasi']], 100)}
     <p>${esc(tx('buktiPenutup'))}<br>${esc(S().penutup)}</p>${ttdUndang(l)}${tembus(tx('buktiTembusan'), v)}`;
@@ -243,7 +286,7 @@ const R = {
   },
   lap(l, p, v) {
     const pes = parsePes(l.peserta), hps = num(p.hps);
-    return `${dateLine(l)}<table class=hd><tr><td style="width:70px">Nomor</td><td>:</td><td>${nomor(l)}</td></tr><tr><td>Lampiran</td><td>:</td><td>${esc(l.lamp || '1 (satu) bendel')}</td></tr><tr><td>Perihal</td><td>:</td><td>${esc(fill(TPL.lap.hal, v))}</td></tr></table>
+    return `${jt(l, 'LAPORAN HASIL PEMILIHAN')}${dateLine(l)}<table class=hd><tr><td style="width:70px">Nomor</td><td>:</td><td>${nomor(l)}</td></tr><tr><td>Lampiran</td><td>:</td><td>${esc(l.lamp || '1 (satu) bendel')}</td></tr><tr><td>Perihal</td><td>:</td><td>${esc(fill(TPL.lap.hal, v))}</td></tr></table>
     <p style="margin:20px 0 0">Yth.<br>${esc(p.ppk || 'Pejabat Pembuat Komitmen ' + (p.satker || ''))}<br>${esc(p.satker)}<br>di<br>&nbsp;&nbsp;&nbsp;&nbsp;Tempat</p>
     <p style="margin-top:16px">Bersama ini kami sampaikan hasil mini kompetisi katalog elektronik pada Satuan Kerja ${esc(p.satker)}, sebagai berikut:</p>
     <h4>A.&nbsp; Dasar Pelaksanaan</h4>${ol(lines(fill(tx('lapDasar'), v)).map(esc))}
@@ -251,7 +294,16 @@ const R = {
     <h4>C.&nbsp; Pelaksanaan Katalog Elektronik</h4>${ol([`Pelaksanaan ${esc(p.nama)} dilaksanakan melalui katalog elektronik mini kompetisi ${esc(p.metode || 'Itemized')}.`, `Penayangan mini kompetisi dilaksanakan mulai ${dtm(l.mulai)} sampai dengan ${dtm(l.selesai)}.`, `Pembuktian dan klarifikasi dilaksanakan pada ${hari(l.tglBukti)}, ${tgl(l.tglBukti)}.`])}
     <h4>D.&nbsp; Hasil Pemilihan</h4><table class=b><tr><th style="width:30px">No</th><th>Nama Peserta</th><th>Nilai Penawaran</th><th>Keterangan</th></tr>${pes.map((x, i) => `<tr><td>${i + 1}</td><td>${esc(x.nama)}</td><td>${rp(x.nilai)}${hps && x.nilai ? `<br><small>${((x.nilai / hps) * 100).toFixed(2).replace('.', ',')}% HPS</small>` : ''}</td><td>${esc(x.ket)}${i === 0 ? ' (Pemenang)' : ''}</td></tr>`).join('')}</table>
     <h4>E.&nbsp; Tindak Lanjut</h4>${ol(lines(fill(tx('lapTindak'), v)).map(esc))}<p>${esc(fill(tx('lapPenutup'), v))}</p>
-    <div class=ttd style="margin-left:50%;break-inside:avoid">${esc(S().lap1)}<br>${esc(S().lap2)}</div><table class=b style="margin-top:6px;break-inside:avoid"><tr><th style="width:30px">No</th><th>Nama</th><th>Tanda Tangan</th></tr>${angOf(l).map((a, i) => `<tr><td>${i + 1}</td><td>${esc(a.nama)}${a.nip ? `<br>NIP ${esc(a.nip)}` : ''}</td><td style="height:58px">${a.ttd ? `<img src="${a.ttd}" style="max-height:52px;max-width:110px">` : ''}</td></tr>`).join('')}</table>${tembus(tx('lapTembusan'), v)}`;
+    <div class=ttd style="margin-left:50%;break-inside:avoid">${esc(S().lap1)}<br>${esc(S().lap2)}</div><table class=b style="margin-top:6px;break-inside:avoid"><tr><th style="width:30px">No</th><th>Nama</th><th>Tanda Tangan</th></tr>${angOf(l).map((a, i) => `<tr><td>${i + 1}</td><td>${esc(a.nama)}${a.nip ? `<br>NIP ${esc(a.nip)}` : ''}</td><td style="height:58px;text-align:center;vertical-align:middle">${a.ttd ? `<img src="${a.ttd}" style="max-height:52px;max-width:110px">` : ''}</td></tr>`).join('')}</table>${tembus(tx('lapTembusan'), v)}`;
+  },
+  kk(l, p) {
+    const U1 = (x) => esc(String(x || '').toUpperCase()), r = (a, b, c, d) => `<tr><td><b>${a}</b></td><td>${b}</td><td>${c}</td><td>${d}</td></tr>`;
+    const prods = (l.prods || []).map((q, i) => { const jml = num(q.jml), hps = num(q.hps), tot = num(q.tot), th = jml * hps, n = (x) => Number(x).toLocaleString('id-ID');
+      return `<table class="b kk" style="margin-top:12px"><tr><th colspan=4 style="text-align:left;background:#e5e5e5">PRODUK ${i + 1}</th></tr><tr><th style="width:21%">KETERANGAN</th><th style="width:32%">KUALIFIKASI</th><th style="width:32%">EVALUASI</th><th>KETERANGAN</th></tr>${(q.rows || []).map((x) => r(esc(x.l), nl(x.k), nl(x.e), nl(x.n))).join('')}${r('Jumlah', n(jml), n(jml), '')}${r('Satuan', esc(q.sat), esc(q.sat), '')}${r('HPS Produk', rp(hps), jml ? rp(Math.round(tot / jml)) : '......', '')}${r('Total HPS Produk', rp(th), rp(tot), '')}${r('Persentase dengan HPS Produk', '', th ? ((tot / th) * 100).toFixed(2).replace('.', ',') + '%' : '......', '')}</table>`; }).join('');
+    return `${kop()}<p class=tc style="margin:0">LEMBAR KERJA EVALUASI KUALIFIKASI, ADMINISTRASI, TEKNIS DAN HARGA</p><p class=tc style="margin:0">${U1(p.nama)}</p><p class=tc style="margin:0 0 14px">SATUAN KERJA ${U1(p.satker)}</p>
+    ${kv([['Nama Perusahaan', esc(l.pNama)], ['NPWP', esc(l.pNpwp)], ['No. Telepon', esc(l.pTelp)], ['Email', esc(l.pEmail)], ['Alamat', esc(l.pAlamat)]], 150)}${prods}
+    <table class=b style="margin-top:12px;break-inside:avoid"><tr><th style="text-align:left">Apabila Tidak Memenuhi Syarat — ALASAN TOLAK</th></tr><tr><td style="height:40px">${nl(l.alasan)}</td></tr></table>
+    <div style="break-inside:avoid;margin-top:18px"><p style="margin:0">${esc(l.kota)}, ${tgl(l.tgl)}</p><p style="margin:0 0 6px">Pokja Pemilihan Barang/Jasa<br>${esc(S().lap2)} - ${esc(S().instansi)}</p><table class=k>${angOf(l).map((a, i) => `<tr><td style="width:24px">${i + 1}</td><td style="width:230px">${esc(a.nama)}</td><td style="width:180px;text-align:center;height:46px;vertical-align:bottom">${a.ttd ? `<img src="${a.ttd}" style="max-height:44px;max-width:150px;display:block;margin:0 auto">` : ''}<div style="border-top:1px dotted #000"></div></td></tr>`).join('')}</table></div>`;
   },
   dmk(l, p, v) {
     let k = 1, open = false, o = '';
@@ -278,7 +330,7 @@ function renderLetter(l) {
   const p = paketOf(l);
   if (!p) return '<p style="padding:40px;text-align:center;color:#888">Pilih atau buat paket dulu (Pengaturan › Paket).</p>';
   const body = R[l.tpl](l, p, vars(l));
-  return l.tpl === 'dmk' ? body : kop() + body;
+  return l.tpl === 'dmk' || l.tpl === 'kk' ? body : kop() + body;
 }
 function judul(l) { const p = paketOf(l) || {}, v = vars(l); return `${(l.tgl || '').replace(/-/g, '')} ${TPL[l.tpl].hal ? fill(TPL[l.tpl].hal, v) : TPL[l.tpl].n + ' ' + (p.nama || '')}`.replace(/[\\/:*?"<>|]/g, '-'); }
 
@@ -294,46 +346,50 @@ const bind = (root, obj, after) => { root.oninput = root.onchange = (e) => { con
 
 function suratView() {
   L ||= newLetter('reviu');
-  $('#main').innerHTML = '<div class=wrap><div class="side noprint" id=sd></div><div class="form noprint" id=fm></div><div class=prev><div class=sheet id=sh></div></div></div><style id=pg></style>';
+  $('#main').innerHTML = '<div class=wrap><div class="form noprint" id=fm></div><div class=prev><div class=sheet id=sh></div></div></div><style id=pg></style>';
   side(); form(); prev();
 }
-function side() {
-  const q = ($('#q') || {}).value || '';
-  const rec = D.surat.slice().sort((a, b) => b.ts - a.ts).filter((s) => !q || (judul(s) + s.no).toLowerCase().includes(q.toLowerCase())).slice(0, 14);
-  $('#sd').innerHTML = `<h6>BUAT SURAT</h6>${KEYS.map((k) => `<div class="t ${L.tpl === k ? 'on' : ''}" data-t=${k}>${TPL[k].n}</div>`).join('')}<h6 style="margin-top:18px">TERAKHIR DIBUAT</h6><input id=q placeholder="Cari paket atau nomor…" value="${esc(q)}" style="margin-bottom:6px">${rec.map((s) => `<div class="rec ${s.id === L.id ? 'on' : ''}" data-o=${s.id}><b>${TPL[s.tpl].n.split(' ').slice(0, 3).join(' ')}${s.no ? ' · ' + s.no : ''}</b>${esc((paketOf(s) || {}).nama || '')}<br><span class=muted>${tgl(s.tgl)} · ${esc(s.by || '')}</span><br><a data-c=${s.id} style="color:#172b5a;font-weight:600">Buat lagi seperti ini</a></div>`).join('')}`;
-  $('#sd').onclick = (e) => {
-    const c = e.target.closest('[data-c]'), t = e.target.closest('[data-t]'), o = e.target.closest('[data-o]');
-    if (c) { const s = D.surat.find((x) => x.id === c.dataset.c); L = newLetter(s.tpl, s); }
-    else if (t) { const pid = L.pid; L = newLetter(t.dataset.t, { pid }); }
-    else if (o) L = JSON.parse(JSON.stringify(D.surat.find((x) => x.id === o.dataset.o)));
-    else return;
-    side(); form(); prev();
-  };
-  $('#q').oninput = () => { const v = $('#q').value; side(); $('#q').value = v; $('#q').focus(); };
-}
+function side() {}
 function form() {
   const t = TPL[L.tpl], dup = !t.nonum && D.surat.some((s) => s.id !== L.id && s.tpl && !TPL[s.tpl].nonum && yr(s) === yr(L) && +s.no === +L.no);
   const common = [['no', 'Nomor urut', 'number'], ['tgl', 'Tanggal surat', 'date'], ['kota', 'Kota'], ['blnMode', 'Bulan pada nomor', 'sel', ['ikut', 'lalu']]];
   const sig = L.tpl === 'reviu' || L.tpl === 'bukti';
-  $('#fm').innerHTML = `<h2>${t.n}</h2><p class=muted>Data paket dan Pokja terisi otomatis. Yang baru biasanya hanya tanggal, waktu, dan nomor.</p>
+  L.judulTengah ??= true;
+  $('#fm').innerHTML = `<select id=tp style="font-weight:700;font-size:15px">${KEYS.map((k) => `<option value=${k} ${k === L.tpl ? 'selected' : ''}>${TPL[k].n}</option>`).join('')}</select><p class=muted>Data paket dan Pokja terisi otomatis. Yang baru biasanya hanya tanggal, waktu, dan nomor.</p>
   <label>1 · Paket</label><select id=pk>${D.paket.length ? D.paket.map((p) => `<option value="${p.id}" ${p.id === L.pid ? 'selected' : ''}>${esc(p.nama)}</option>`).join('') : '<option value="">(belum ada paket)</option>'}</select>
   ${D.paket.length ? '' : '<p class=err>Tambahkan paket di Pengaturan › Paket.</p>'}
-  <label>2 · Isian ${t.n}</label><div id=ff>${t.f.map((f) => fh(L, [f.k, f.l, f.t, f.o])).join('')}</div>
+  <label>2 · Isian ${t.n}</label><div id=ff>${t.f.map((f) => fh(L, [f.k, f.l, f.t, f.o])).join('')}${L.tpl === 'kk' ? kkForm() : ''}${['reviu', 'bukti', 'lap'].includes(L.tpl) ? fh(L, ['judulTengah', 'Judul di tengah', 'chk']) : ''}</div>
   <label>3 · Nomor & tanggal</label><div class=g2>${common.map((c) => (c[0] === 'no' && t.nonum ? '' : fh(L, c.slice(0, 1).concat(c.slice(1)))) ).join('')}</div>
   ${t.nonum ? '' : `<p class=muted>Nomor: <b>${nomor(L)}</b> · saran berikutnya: ${nextNo(yr(L))}</p>${dup ? '<p class=err>Nomor ini sudah dipakai surat lain pada tahun yang sama.</p>' : ''}`}
   ${sig ? `<label>Penandatangan</label><select data-k=ttd>${D.pokja.map((p) => `<option value="${p.id}" ${p.id === L.ttd ? 'selected' : ''}>${esc(p.nama)}</option>`).join('')}</select>${fh(L, ['scan', 'Bubuhkan scan tanda tangan', 'chk'])}` : `<label>Anggota Pokja pada tanda tangan</label>${D.pokja.map((p) => `<label style="display:flex;gap:8px;font-weight:400"><input type=checkbox style="width:auto" data-a="${p.id}" ${L.ang.includes(p.id) ? 'checked' : ''}>${esc(p.nama)}${p.ttd ? '' : ' <span class=muted>(belum ada TTD)</span>'}</label>`).join('')}`}
   <div class=bar><button class="btn p" id=pdf>Unduh PDF</button><button class=btn id=sv>Simpan</button></div>`;
+  $('#tp').onchange = (e) => { L = newLetter(e.target.value, { pid: L.pid }); form(); prev(); };
   $('#pk').onchange = (e) => { L.pid = e.target.value; if (L.tpl === 'lap') autoLap(L); form(); prev(); };
   const f = $('#fm');
   f.oninput = f.onchange = (e) => {
     const x = e.target;
     if (x.dataset.a) { L.ang = D.pokja.map((p) => p.id).filter((id) => (id === x.dataset.a ? x.checked : L.ang.includes(id))); }
+    else if (x.dataset.kk) { const [i, j, k] = x.dataset.kk.split('.'), P = L.prods[+i]; j === 'h' ? (P[k] = x.value) : (P.rows[+j][k] = x.value); }
     else if (x.dataset.k) L[x.dataset.k] = x.type === 'checkbox' ? x.checked : x.type === 'number' ? +x.value : x.value;
     else return;
     prev();
   };
+  f.onclick = (e) => {
+    const a = e.target.dataset.x; if (!a) return;
+    const [c, v] = a.split(':'), [i, j] = String(v).split('.').map(Number), sc = f.scrollTop;
+    if (c === 'ap') L.prods.push(defProd()); else if (c === 'dp') L.prods.splice(i, 1); else if (c === 'ar') L.prods[i].rows.push({ l: '', k: '', e: '', n: '' }); else if (c === 'dr') L.prods[i].rows.splice(j, 1);
+    form(); $('#fm').scrollTop = sc; prev();
+  };
   $('#sv').onclick = () => { saveL(); form(); };
   $('#pdf').onclick = () => { saveL(); const old = document.title; document.title = judul(L); addEventListener('afterprint', () => (document.title = old), { once: true }); print(); };
+}
+function kkForm() {
+  const h = (i, k, l) => `<div><label>${l}</label><input data-kk="${i}.h.${k}" value="${esc(L.prods[i][k])}"></div>`;
+  return `<div class=g2>${[['pNama', 'Nama perusahaan'], ['pNpwp', 'NPWP'], ['pTelp', 'No. telepon'], ['pEmail', 'Email']].map((f) => fh(L, f)).join('')}</div>${fh(L, ['pAlamat', 'Alamat', 'area'])}
+  ${L.prods.map((p, i) => `<div class=panel style="padding:12px"><div class=row style="border:0;padding:0"><b style="flex:1">Produk ${i + 1}</b>${L.prods.length > 1 ? `<button class="btn s" data-x="dp:${i}">Hapus produk</button>` : ''}</div>
+  <table class=kt><tr><th>Keterangan</th><th>Kualifikasi</th><th>Evaluasi</th><th>Ket.</th><th></th></tr>${p.rows.map((r, j) => `<tr><td><input data-kk="${i}.${j}.l" value="${esc(r.l)}"></td><td><textarea data-kk="${i}.${j}.k">${esc(r.k)}</textarea></td><td><textarea data-kk="${i}.${j}.e">${esc(r.e)}</textarea></td><td><textarea data-kk="${i}.${j}.n">${esc(r.n)}</textarea></td><td><button class="btn s" data-x="dr:${i}.${j}">×</button></td></tr>`).join('')}</table>
+  <p><button class="btn s" data-x="ar:${i}">+ Tambah baris</button></p><div class=g2>${h(i, 'jml', 'Jumlah')}${h(i, 'sat', 'Satuan')}${h(i, 'hps', 'HPS produk per satuan (angka)')}${h(i, 'tot', 'Total penawaran peserta (angka)')}</div></div>`).join('')}
+  <p><button class=btn data-x=ap>+ Tambah produk</button></p>${fh(L, ['alasan', 'Alasan tolak (bila tidak memenuhi syarat)', 'area'])}`;
 }
 function saveL() {
   L.ts = Date.now(); L.by = U.name;
@@ -363,15 +419,24 @@ function pKode(el) {
   bind(el, s, dirty);
   $('#lg').onchange = (e) => e.target.files[0] && ttdUp(e.target.files[0], (d) => { s.logo = d; dirty(); pKode(el); });
 }
+function cropData(url) {
+  return new Promise((res) => { const im = new Image(); im.onload = () => {
+    const c = document.createElement('canvas'); c.width = im.width; c.height = im.height; const x = c.getContext('2d'); x.drawImage(im, 0, 0);
+    const d = x.getImageData(0, 0, c.width, c.height).data; let a = c.width, b = c.height, e = -1, f = -1;
+    for (let y = 0; y < c.height; y++) for (let X = 0; X < c.width; X++) { const i = (y * c.width + X) * 4; if (d[i + 3] > 20 && d[i] + d[i + 1] + d[i + 2] < 720) { if (X < a) a = X; if (X > e) e = X; if (y < b) b = y; if (y > f) f = y; } }
+    if (e < a) return res(url);
+    const o = document.createElement('canvas'); o.width = e - a + 1; o.height = f - b + 1; o.getContext('2d').drawImage(c, a, b, o.width, o.height, 0, 0, o.width, o.height); res(o.toDataURL('image/png')); }; im.src = url; });
+}
 function ttdUp(file, cb) {
   const fr = new FileReader();
-  fr.onload = () => { const im = new Image(); im.onload = () => { const sc = Math.min(1, 500 / im.width), c = document.createElement('canvas'); c.width = im.width * sc; c.height = im.height * sc; c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); cb(c.toDataURL('image/png')); }; im.src = fr.result; };
+  fr.onload = () => { const im = new Image(); im.onload = () => { const sc = Math.min(1, 500 / im.width), c = document.createElement('canvas'); c.width = im.width * sc; c.height = im.height * sc; c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); cropData(c.toDataURL('image/png')).then(cb); }; im.src = fr.result; };
   fr.readAsDataURL(file);
 }
 function pPokja(el) {
-  el.innerHTML = `<div class=card><h3>Daftar Pokja & TTD</h3><div class=g2><div><label>Nama</label><input id=pn1></div><div><label>NIP</label><input id=pn2></div></div><p><button class="btn p" id=add>Tambah</button></p>
+  el.innerHTML = `<div class=card><h3>Daftar Pokja & TTD</h3><div class=g2><div><label>Nama</label><input id=pn1></div><div><label>NIP</label><input id=pn2></div></div><p><button class="btn p" id=add>Tambah</button> <button class=btn id=crop>Rapikan semua TTD (tengahkan)</button></p>
   ${D.pokja.map((p) => `<div class=row data-i=${p.id}>${p.ttd ? `<img src="${p.ttd}">` : '<span class=muted style="width:120px">belum ada TTD</span>'}<div style="flex:1"><b>${esc(p.nama)}</b><br><span class=muted>${p.nip ? 'NIP ' + esc(p.nip) : 'NIP belum diisi'}</span>${p.ttd ? `<br><span class=muted>Lebar pada undangan: <input type=range min=60 max=220 value="${p.w || 140}" data-w=${p.id} style="width:120px"> ${p.w || 140} pt</span>` : ''}</div><label class=btn style="margin:0">${p.ttd ? 'Ganti' : 'Unggah'} TTD<input type=file accept="image/*" data-u=${p.id} hidden></label><button class="btn s" data-d=${p.id}>Hapus</button></div>`).join('')}</div>`;
   $('#add').onclick = () => { const n = $('#pn1').value.trim(); if (!n) return; D.pokja.push({ id: uid(), nama: n, nip: $('#pn2').value.trim(), ttd: '', w: 140 }); dirty(); pPokja(el); };
+  $('#crop').onclick = async () => { for (const p of D.pokja) if (p.ttd) p.ttd = await cropData(p.ttd); dirty(); pPokja(el); };
   el.onchange = (e) => { const t = e.target; if (t.dataset.u) ttdUp(t.files[0], (d) => { D.pokja.find((p) => p.id === t.dataset.u).ttd = d; dirty(); pPokja(el); }); };
   el.oninput = (e) => { const t = e.target; if (t.dataset.w) { D.pokja.find((p) => p.id === t.dataset.w).w = +t.value; t.parentElement.lastChild.textContent = ' ' + t.value + ' pt'; dirty(); } };
   el.onclick = (e) => { const d = e.target.dataset.d; if (d && confirm('Hapus anggota ini?')) { D.pokja = D.pokja.filter((p) => p.id !== d); dirty(); pPokja(el); } };
