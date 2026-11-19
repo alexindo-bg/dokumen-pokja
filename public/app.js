@@ -98,7 +98,7 @@ const tx = (k) => (D.tpl[k] != null && D.tpl[k] !== '' ? D.tpl[k] : TX[k]);
 
 const DEF = () => ({
   set: { klas: 'PL.030', unit: 'A.5.3', kota: 'Bogor', kertas: 'A4', zoomTempat: '', zoomLink: '', zoomId: '', zoomPass: '', zona: 'WIB', pejabat: 'Kepala Biro Umum dan Pengadaan', instansi: 'Kementerian Pertanian', penutupMK: 'a.n. Pokja Pemilihan', an: 'a.n. Kelompok Kerja Pemilihan', unitBaris: 'Biro Umum dan Pengadaan', lap1: 'Kelompok Kerja Pemilihan', lap2: 'Biro Umum dan Pengadaan', penutup: 'Demikian, atas perhatian dan kerjasamanya diucapkan terima kasih.', kop1: 'KEMENTERIAN PERTANIAN', kop2: 'SEKRETARIAT JENDERAL', kop3: 'JALAN HARSONO RM NOMOR 3 PASAR MINGGU, JAKARTA 12550\nKOTAK POS 83/1200/PASARMINGGU\nTELEPON (021) 7804116 – 7806131, FAKSIMILI (021) 7816180\nWEBSITE: https://pertanian.go.id', logo: '' },
-  pokja: [], paket: [], surat: [], tpl: {}, monitor: [],
+  pokja: [], paket: [], surat: [], tpl: {}, monitor: [], wil: null,
 });
 
 /* ===== state & api ===== */
@@ -116,7 +116,7 @@ async function persist() {
   try { V = (await api('ws', 'PUT', { v: V, data: D })).v; setSt('Tersimpan'); }
   catch (e) { if (e.status === 409) { alert(e.message); location.reload(); } else setSt('Gagal menyimpan: ' + e.message); }
 }
-async function load() { const r = await api('ws'); V = r.v; D = r.data || DEF(); D.set = { ...DEF().set, ...D.set }; D.tpl ||= {}; D.monitor ||= []; if (!r.data) await persist(); }
+async function load() { const r = await api('ws'); V = r.v; D = r.data || DEF(); D.set = { ...DEF().set, ...D.set }; D.tpl ||= {}; D.monitor ||= []; D.wil ||= seedWil(); if (!r.data) await persist(); }
 
 /* ===== autentikasi (kode referral) ===== */
 function authView(mode = 'login', err = '') {
@@ -150,46 +150,36 @@ async function start() {
 let hq = '';
 function shell() {
   const ini = (U.name || '?').split(/\s+/).map((w) => w[0]).slice(0, 2).join('').toUpperCase();
-  const nav = [['home', 'Beranda', '⌂'], ['surat', 'Buat Surat', '✉'], ['mon', 'Monitoring', '◔'], ['set', 'Pengaturan', '⚙']];
-  $('#app').innerHTML = `<div class=frame><aside class=noprint><div class=prof><span class=av>${esc(ini)}</span><div><b>${esc(U.name)}</b><small>${esc(S().unitBaris)}</small></div></div><input id=gq placeholder="Cari surat atau paket…" value="${esc(hq)}">
-  <h6>Utama</h6>${nav.map(([k, n, c]) => `<a data-v=${k} class="${view === k ? 'on' : ''}"><i>${c}</i>${n}</a>`).join('')}
-  <h6>Paket</h6>${D.paket.slice(0, 10).map((p) => `<a data-pk=${p.id}><i class=dot></i><span class=cl>${esc(p.nama)}</span></a>`).join('') || '<small style="padding:0 12px;color:#888">Belum ada paket</small>'}
-  <h6>Akun</h6><a id=out><i>⇥</i>Keluar</a><small id=st style="padding:6px 12px;color:#888"></small></aside><main class=main id=main></main></div>`;
+  const nav = [['home', 'Beranda', '⌂'], ['surat', 'Buat Surat', '✎'], ['mon', 'Monitoring', '◔'], ['drv', 'Dokumen Drive', '☁'], ['set', 'Pengaturan', '⚙']];
+  $('#app').innerHTML = `<div class=frame><aside class=noprint><div class=brand><span class=lg></span>Dokumen Pokja</div><button class=up id=nw>Buat Surat Baru</button>
+  <nav>${nav.map(([k, n, c]) => `<a data-v=${k} class="${view === k ? 'on' : ''}"><i>${c}</i>${n}</a>`).join('')}</nav>
+  <h6>PAKET</h6><nav>${D.paket.slice(0, 8).map((p) => `<a data-pk=${p.id}><i class=dot></i><span class=cl>${esc(p.nama)}</span></a>`).join('') || '<small>Belum ada paket</small>'}</nav>
+  <div class=sp></div><small id=st></small><a id=out><i>⇥</i>Keluar (${esc(U.name.split(' ')[0])})</a></aside>
+  <section class=body><div class="topbar noprint"><input id=gq placeholder="Cari surat atau paket…" value="${esc(hq)}"><span class=av>${esc(ini)}</span></div><main class=main id=main></main></section></div>`;
   document.querySelectorAll('aside [data-v]').forEach((a) => (a.onclick = () => { view = a.dataset.v; shell(); }));
   document.querySelectorAll('aside [data-pk]').forEach((a) => (a.onclick = () => { pe = a.dataset.pk; tab = 'paket'; view = 'set'; shell(); }));
+  $('#nw').onclick = () => openLetter(newLetter(L?.tpl || 'reviu', { pid: L?.pid }));
   $('#gq').oninput = (e) => { hq = e.target.value; if (view !== 'home') { view = 'home'; shell(); const g = $('#gq'); g.focus(); g.setSelectionRange(hq.length, hq.length); } else homeList(); };
   $('#out').onclick = async () => { await api('auth?a=logout', 'POST'); U = null; authView(); };
-  ({ home: homeView, surat: suratView, mon: monView, set: setView })[view]();
+  ({ home: homeView, surat: suratView, mon: monView, drv: driveView, set: setView })[view]();
 }
 function openLetter(l) { L = l; view = 'surat'; shell(); }
 function homeList() {
-  const q = hq.toLowerCase(), rec = D.surat.slice().sort((a, b) => b.ts - a.ts).filter((s) => !q || (judul(s) + ' ' + s.no).toLowerCase().includes(q)).slice(0, 12);
-  $('#rc').innerHTML = rec.map((s) => `<div class=it><b>${esc(TPL[s.tpl].n)}${s.no ? ' · ' + s.no : ''}</b><small>${esc((paketOf(s) || {}).nama || '')}</small><small>Dibuat: ${tgl(s.tgl)} · ${esc(s.by || '')}</small><div><button class="btn s" data-o=${s.id}>Buka</button> <button class="btn s" data-c=${s.id}>Buat lagi</button></div></div>`).join('') || '<p class=muted>Belum ada surat.</p>';
+  const q = hq.toLowerCase(), rec = D.surat.slice().sort((a, b) => b.ts - a.ts).filter((s) => !q || (judul(s) + ' ' + s.no).toLowerCase().includes(q)).slice(0, 30);
+  $('#rc').innerHTML = `<table class=ft><tr><th>NAMA</th><th>PAKET</th><th>TANGGAL</th><th>OLEH</th><th></th></tr>${rec.map((s) => `<tr><td><i class=fi>${TPL[s.tpl].i}</i>${esc(TPL[s.tpl].n)}${s.no ? ' · ' + s.no : ''}</td><td class=m>${esc((paketOf(s) || {}).nama || '')}</td><td class=m>${tgl(s.tgl)}</td><td class=m>${esc(s.by || '')}</td><td class=r><a data-o=${s.id}>Buka</a><a data-c=${s.id}>Buat lagi</a></td></tr>`).join('') || '<tr><td colspan=5 class=m>Belum ada surat.</td></tr>'}</table>`;
   $('#rc').onclick = (e) => { const o = e.target.dataset.o, c = e.target.dataset.c; if (o) openLetter(JSON.parse(JSON.stringify(D.surat.find((x) => x.id === o)))); if (c) { const x = D.surat.find((y) => y.id === c); openLetter(newLetter(x.tpl, x)); } };
 }
 function homeView() {
-  const now = new Date(), ms = [...Array(6)].map((_, k) => new Date(now.getFullYear(), now.getMonth() - 5 + k, 1));
-  const ct = ms.map((d) => D.surat.filter((s) => { const x = pd(s.tgl || today()); return x.getFullYear() === d.getFullYear() && x.getMonth() === d.getMonth(); }).length), mx = Math.max(3, ...ct);
-  const pts = ct.map((v, k) => [30 + k * 58, 130 - (v / mx) * 105]);
-  const withLap = new Set(D.surat.filter((x) => x.tpl === 'lap').map((x) => x.pid)).size, tot = Math.max(1, D.paket.length), fr = Math.min(1, withLap / tot), C = 2 * Math.PI * 58;
-  const fold = [['Paket', 'paket'], ['Daftar Pokja & TTD', 'pokja'], ['Kode surat & rapat', 'kode'], ['Template teks', 'tpl'], ['Data & cadangan', 'cad']];
-  $('#main').innerHTML = `<h1>Dokumen</h1><div class=hg><div>
-  <div class=cards>${KEYS.map((k) => `<div class=cd><i class=ic>${TPL[k].i}</i><b>${TPL[k].n}</b><p>${TPL[k].d}</p><button class="btn s" data-n=${k}>Buat</button></div>`).join('')}</div>
-  <div class=panel><h3>Pintasan</h3><div class=fold>${fold.map(([n, t]) => `<div data-f=${t}><i></i>${n}</div>`).join('')}<div data-m=1><i></i>Monitoring</div></div></div>
-  <div class=g2><div class=panel><h3>Surat dibuat per bulan</h3><svg viewBox="0 0 350 160" width=100%><polyline fill=none stroke="#e8884a" stroke-width=2 points="${pts.map((p) => p.join(',')).join(' ')}"/>${pts.map((p, k) => `<line x1=${p[0]} x2=${p[0]} y1=${p[1]} y2=135 stroke="#ddd"/><circle cx=${p[0]} cy=${p[1]} r=5 fill="#fff" stroke="#d6204b" stroke-width=3 /><text x=${p[0]} y=152 font-size=10 text-anchor=middle fill="#666">${BL[ms[k].getMonth()].slice(0, 3)}</text><text x=${p[0]} y=${p[1] - 9} font-size=10 text-anchor=middle>${ct[k]}</text>`).join('')}</svg></div>
-  <div class=panel><h3>Paket sudah berlaporan</h3><svg viewBox="0 0 160 160" width=150 style="display:block;margin:auto"><circle cx=80 cy=80 r=58 fill=none stroke="#e8e6e3" stroke-width=16 /><circle cx=80 cy=80 r=58 fill=none stroke="#111" stroke-width=16 stroke-dasharray="${C * fr} ${C}" transform="rotate(-90 80 80)"/><text x=80 y=86 text-anchor=middle font-size=20 font-weight=700>${withLap}/${D.paket.length}</text></svg></div></div></div>
-  <div class=panel style="margin-top:0"><h3>Terakhir dibuat</h3><div id=rc></div></div></div>`;
+  $('#main').innerHTML = `<div class=head><h1>Beranda</h1></div><h6>AKSES CEPAT</h6><div class=cards>${KEYS.map((k, n) => `<div class="cd ${n === 0 ? 'hot' : ''}" data-n=${k}><i class=ic>${TPL[k].i}</i><b>${TPL[k].n}</b><small>${TPL[k].d}</small></div>`).join('')}</div><h6 style="margin-top:30px">SEMUA SURAT</h6><div id=rc></div>`;
   homeList();
   document.querySelectorAll('#main [data-n]').forEach((b) => (b.onclick = () => openLetter(newLetter(b.dataset.n, { pid: L?.pid }))));
-  document.querySelectorAll('#main [data-f]').forEach((b) => (b.onclick = () => { tab = b.dataset.f; view = 'set'; shell(); }));
-  $('#main [data-m]').onclick = () => { view = 'mon'; shell(); };
 }
-function monView() {
+function monSites() {
   const embed = (v) => ((String(v).match(/src=["']([^"']+)/) || [0, v])[1] || '').trim();
-  $('#main').innerHTML = `<h1>Monitoring</h1><div class=panel style="margin-top:0"><div class=g2><div><label>Nama monitoring</label><input id=mn placeholder="mis. Progres paket dolomit"></div><div><label>Tautan Google Sites (atau kode embed)</label><input id=mu placeholder="https://sites.google.com/view/..."></div></div><p><button class="btn p" id=ma>Tambah monitoring</button></p><p class=muted>Pakai situs yang sudah diterbitkan (Google Sites › Terbitkan, akses "Siapa saja"). Jika kotak di bawah kosong, Google/pemilik situs memblokir penyematan; gunakan "Buka di tab baru".</p><div class=err id=me></div></div>
+  $('#mb').innerHTML = `<div class=panel style="margin-top:0"><div class=g2><div><label>Nama monitoring</label><input id=mn placeholder="mis. Progres paket dolomit"></div><div><label>Tautan Google Sites (atau kode embed)</label><input id=mu placeholder="https://sites.google.com/view/..."></div></div><p><button class="btn p" id=ma>Tambah monitoring</button></p><p class=muted>Pakai situs yang sudah diterbitkan (Google Sites › Terbitkan, akses "Siapa saja"). Jika kotak di bawah kosong, Google/pemilik situs memblokir penyematan; gunakan "Buka di tab baru".</p><div class=err id=me></div></div>
   ${D.monitor.map((x) => `<div class=panel><div class=row style="border:0;padding:0 0 10px"><b style="flex:1">${esc(x.nama)}</b><a class="btn s" href="${esc(x.url)}" target=_blank rel=noopener style="text-decoration:none;color:inherit">Buka di tab baru</a><button class="btn s" data-r=${x.id}>Ubah</button><button class="btn s" data-d=${x.id}>Hapus</button></div><iframe src="${esc(x.url)}" loading=lazy referrerpolicy=no-referrer allowfullscreen style="width:100%;height:72vh;border:1px solid #e3ded8;border-radius:10px;background:#fff"></iframe></div>`).join('') || '<p class=muted>Belum ada monitoring.</p>'}`;
   $('#ma').onclick = () => { const u = embed($('#mu').value), n = $('#mn').value.trim(); if (!n || !/^https:\/\//.test(u)) return ($('#me').textContent = 'Isi nama dan tautan https://'); D.monitor.push({ id: uid(), nama: n, url: u }); dirty(); monView(); };
-  $('#main').onclick = (e) => { const t = e.target, m = (id) => D.monitor.find((x) => x.id === id);
+  $('#mb').onclick = (e) => { const t = e.target, m = (id) => D.monitor.find((x) => x.id === id);
     if (t.dataset.d && confirm('Hapus monitoring ini?')) { D.monitor = D.monitor.filter((x) => x.id !== t.dataset.d); dirty(); monView(); }
     if (t.dataset.r) { const x = m(t.dataset.r), n = prompt('Nama', x.nama), u = n && embed(prompt('Tautan', x.url) || ''); if (n && /^https:\/\//.test(u)) { x.nama = n; x.url = u; dirty(); monView(); } } };
 }
@@ -467,6 +457,77 @@ function pCad(el) {
   el.innerHTML = `<div class=card><h3>Cadangan</h3><p class=muted>Unduh cadangan semua data (.json) secara berkala dan simpan di Drive.</p><button class=btn id=dl>Unduh cadangan semua data (.json)</button> <label class=btn style="display:inline-block;margin:0">Pulihkan dari file<input type=file accept=.json id=rs hidden></label></div>`;
   $('#dl').onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(D)], { type: 'application/json' })); a.download = `cadangan-dokumen-pokja-${today()}.json`; a.click(); };
   $('#rs').onchange = async (e) => { try { const j = JSON.parse(await e.target.files[0].text()); if (!j.set || !j.pokja || !j.paket) throw 0; if (!confirm('Timpa semua data saat ini dengan isi cadangan?')) return; D = { ...DEF(), ...j }; await persist(); alert('Data dipulihkan.'); } catch { alert('File cadangan tidak valid.'); } };
+}
+
+/* ===== monitoring progres ===== */
+const STAT = ['Draft Paket', 'Pengumuman Paket', 'Upload Dokumen Penawaran', 'Evaluasi Penawaran', 'Paket Batal', 'Paket Gagal', 'Penetapan Pemenang', 'Paket Sudah Selesai', 'Pembuktian Kualifikasi', 'Pengumuman Ulang', 'Perpanjangan Waktu', 'Perpanjangan Waktu II', 'Perpanjangan Waktu III', 'Perpanjangan Waktu IV', 'Perpanjangan Waktu V', 'Perpanjangan Waktu VI', 'Pembuatan Paket Baru', 'Perpanjangan Waktu I (Ulang)', 'Perpanjangan Waktu II (Ulang)', 'Perpanjangan Waktu III (Ulang)'];
+const stList = () => (D.statusList && D.statusList.length ? D.statusList : STAT);
+const stCls = (x) => (/batal|gagal/i.test(x) ? 'r' : /selesai|penetapan/i.test(x) ? 'g' : /perpanjangan/i.test(x) ? 'a' : '');
+const PC = ['#7c3aed', '#0d9488', '#d97706', '#2563eb', '#db2777'];
+const pcol = (p) => { let h = 0; for (const c of p || '') h = (h * 31 + c.charCodeAt(0)) % PC.length; return PC[h]; };
+const mapUrl = (r) => r.peta || 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent((r.wil || '') + ' ' + (r.prov || ''));
+function seedWil() {
+  const A = 'Provinsi Aceh', U1 = 'Provinsi Sumatera Utara', P = 'Pengumuman Paket';
+  return [[A, 'Kota Langsa', 1019, 5095, '2026-11-13T09:00', 2], [U1, 'Kabupaten Serdang Bedagai', 1390, 6950, '2026-11-12T14:00', 2], [U1, 'Kabupaten Mandailing Natal', 2717, 13585, '2026-11-12T14:00', 2], [U1, 'Kabupaten Tapanuli Selatan', 912, 4560, '2026-11-13T09:00', 2], [U1, 'Kabupaten Langkat', 5520, 27600, '2026-11-13T09:00', 2], [U1, 'Kabupaten Batu Bara', 1301, 6505, '2026-11-12T14:00', 2], [A, 'Kabupaten Pidie Jaya', 1253, 6265, '2026-11-13T08:00', 1], [A, 'Kabupaten Aceh Tamiang', 3960, 19800, '2026-11-13T08:00', 1], [A, 'Kabupaten Aceh Besar', 2765, 13825, '2026-11-13T08:00', 1], [A, 'Kabupaten Aceh Tengah', 1055, 5275, '2026-11-13T08:00', 1], [A, 'Kabupaten Aceh Timur', 8074, 40370, '2026-11-13T08:00', 1], [U1, 'Kabupaten Deli Serdang', 7007, 35035, '2026-11-13T09:00', 1], [U1, 'Kabupaten Tapanuli Tengah', 1725, 8625, '2026-11-13T09:00', 1]]
+    .map(([prov, wil, lahan, qty, selesai, penawar]) => ({ id: uid(), prov, wil, lahan: String(lahan), qty: String(qty), status: P, selesai, penawar: String(penawar), peta: '' }));
+}
+let mtab = 'tbl', mq = '', mf = '';
+function monView() {
+  $('#main').innerHTML = `<div class=head><h1>Monitoring</h1><div class=tabs><a data-t=tbl class="${mtab === 'tbl' ? 'on' : ''}">Progres pengadaan</a><a data-t=gs class="${mtab === 'gs' ? 'on' : ''}">Google Sites</a></div></div><div id=mb></div>`;
+  document.querySelectorAll('.tabs a').forEach((a) => (a.onclick = () => { mtab = a.dataset.t; monView(); }));
+  mtab === 'tbl' ? monTbl() : monSites();
+}
+function monTbl() {
+  const f = (v) => (v === '' || v == null ? '' : Number(num(v)).toLocaleString('id-ID'));
+  const rows = D.wil.filter((r) => (!mq || (r.wil + ' ' + r.prov).toLowerCase().includes(mq.toLowerCase())) && (!mf || r.status === mf));
+  const cnt = {}; D.wil.forEach((r) => (cnt[r.status] = (cnt[r.status] || 0) + 1));
+  const sum = rows.reduce((a, r) => ({ l: a.l + num(r.lahan), q: a.q + num(r.qty), p: a.p + num(r.penawar) }), { l: 0, q: 0, p: 0 });
+  $('#mb').innerHTML = `<div class=chips>${Object.entries(cnt).map(([k, v]) => `<span class="pill ${stCls(k)}">${esc(k)} · ${v}</span>`).join('')}</div>
+  <div class=tools><input id=mqi placeholder="Cari kabupaten/kota…" value="${esc(mq)}"><select id=mfi><option value="">Semua status progress</option>${stList().map((x) => `<option ${x === mf ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select><button class="btn p" id=addw>+ Tambah wilayah</button><button class=btn id=adds>+ Status baru</button></div>
+  <div class=tw><table class=mt><thead><tr><th>NO</th><th>PROVINSI / WILAYAH / KABUPATEN / KOTA</th><th>LAHAN (HA)</th><th>QTY (KG)</th><th>STATUS PROGRESS PENGADAAN</th><th>PENAWARAN SELESAI</th><th>JUMLAH PENAWAR</th><th>PETA</th><th></th></tr></thead><tbody>${rows.map((r, i) => `<tr data-id=${r.id}><td>${i + 1}</td><td><input class=tag data-f=prov value="${esc(r.prov)}" placeholder="Provinsi" style="color:${pcol(r.prov)};background:${pcol(r.prov)}14"><input class=nm data-f=wil value="${esc(r.wil)}" placeholder="Kabupaten / Kota"></td><td><input class=n data-f=lahan value="${f(r.lahan)}"></td><td><input class=n data-f=qty value="${f(r.qty)}"></td><td><select class="pill ${stCls(r.status)}" data-f=status>${stList().map((x) => `<option ${x === r.status ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select></td><td><input type=datetime-local data-f=selesai value="${esc(r.selesai)}"></td><td><input type=number min=0 class=c data-f=penawar value="${esc(r.penawar)}"></td><td><a class=pt target=_blank rel=noopener href="${esc(mapUrl(r))}" title="${r.peta ? 'Tautan peta kustom' : 'Cari di Google Maps'}">Peta</a><a class=x data-p=${r.id} title="Ubah tautan peta">✎</a></td><td><a class=x data-x=${r.id} title="Hapus">×</a></td></tr>`).join('') || '<tr><td colspan=9 class=m>Tidak ada data.</td></tr>'}</tbody><tfoot><tr><td></td><td>Total (${rows.length} wilayah)</td><td class=n>${sum.l.toLocaleString('id-ID')}</td><td class=n>${sum.q.toLocaleString('id-ID')}</td><td></td><td></td><td class=c>${sum.p}</td><td></td><td></td></tr></tfoot></table></div>`;
+  const root = $('#mb');
+  root.oninput = root.onchange = (e) => { const t = e.target, tr = t.closest('tr[data-id]'); if (t.id === 'mqi') { mq = t.value; monTbl(); const q = $('#mqi'); q.focus(); q.setSelectionRange(mq.length, mq.length); return; } if (t.id === 'mfi') { mf = t.value; monTbl(); return; } if (!tr || !t.dataset.f) return; const r = D.wil.find((x) => x.id === tr.dataset.id); r[t.dataset.f] = t.value; if (t.dataset.f === 'status') t.className = 'pill ' + stCls(t.value); dirty(); };
+  root.onclick = (e) => { const t = e.target;
+    if (t.id === 'addw') { D.wil.push({ id: uid(), prov: '', wil: 'Wilayah baru', lahan: '', qty: '', status: stList()[1] || stList()[0], selesai: '', penawar: '1', peta: '' }); dirty(); monTbl(); }
+    if (t.id === 'adds') { const n = (prompt('Nama status baru') || '').trim(); if (n) { D.statusList = [...stList(), n]; dirty(); monTbl(); } }
+    if (t.dataset.x && confirm('Hapus wilayah ini?')) { D.wil = D.wil.filter((x) => x.id !== t.dataset.x); dirty(); monTbl(); }
+    if (t.dataset.p) { const r = D.wil.find((x) => x.id === t.dataset.p), u = prompt('Tautan peta (kosongkan = cari otomatis di Google Maps)', r.peta || ''); if (u !== null) { r.peta = u.trim(); dirty(); monTbl(); } } };
+}
+
+/* ===== Dokumen: koneksi Google Drive ===== */
+const sz = (n) => (n == null ? '—' : n > 1e6 ? (n / 1e6).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1e3)) + ' KB');
+async function driveView() {
+  $('#main').innerHTML = `<div class=head><h1>Dokumen Drive</h1><span id=gds class=muted></span></div><div class=drop id=dz><b>Tarik &amp; lepas dokumen di sini</b><span class=muted>atau</span><label class="btn p">Pilih file<input type=file multiple hidden id=fi></label><div id=up></div></div><h6 style="margin-top:26px">SEMUA FILE</h6><div id=fl class=muted>Memuat…</div>`;
+  let st = {};
+  try { st = await api('drive?a=status'); } catch (e) { $('#fl').textContent = e.message; return; }
+  const g = $('#gds');
+  if (!st.configured) g.innerHTML = 'Belum dikonfigurasi (isi GOOGLE_CLIENT_ID dan GOOGLE_CLIENT_SECRET di Vercel).';
+  else if (!st.connected) g.innerHTML = st.admin ? '<a class="btn p" href="/api/drive?a=auth">Hubungkan Google Drive</a>' : 'Belum terhubung. Minta admin menghubungkan Google Drive.';
+  else g.innerHTML = `Terhubung · <a href="https://drive.google.com/drive/folders/${esc(st.folder)}" target=_blank rel=noopener>buka folder</a>${st.admin ? ' · <a href="/api/drive?a=auth">hubungkan ulang</a>' : ''}`;
+  const list = async () => {
+    if (!st.connected) { $('#fl').textContent = 'Hubungkan Google Drive untuk melihat dan mengunggah file.'; return; }
+    try {
+      const { files } = await api('drive?a=list'); $('#fl').className = '';
+      $('#fl').innerHTML = `<table class=ft><tr><th>NAMA</th><th>TERAKHIR DIUBAH</th><th>UKURAN</th><th></th></tr>${files.map((f) => `<tr><td><i class=fi>${/pdf/.test(f.mimeType) ? 'P' : /sheet|excel/.test(f.mimeType) ? 'X' : /word|document/.test(f.mimeType) ? 'W' : '▤'}</i>${esc(f.name)}</td><td class=m>${new Date(f.modifiedTime).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}</td><td class=m>${sz(f.size && +f.size)}</td><td class=r><a href="${esc(f.webViewLink)}" target=_blank rel=noopener>Buka</a>${st.admin ? `<a data-d=${f.id}>Hapus</a>` : ''}</td></tr>`).join('') || '<tr><td colspan=4 class=m>Folder masih kosong.</td></tr>'}</table>`;
+    } catch (e) { $('#fl').innerHTML = `<span class=err>${esc(e.message)}</span>`; }
+  };
+  $('#fl').onclick = async (e) => { const d = e.target.dataset.d; if (d && confirm('Pindahkan file ke Sampah Drive?')) { await api('drive?a=del', 'POST', { id: d }).catch((x) => alert(x.message)); list(); } };
+  const send = async (files) => { for (const f of files) await upFile(f, $('#up')); list(); };
+  const dz = $('#dz');
+  dz.ondragover = (e) => { e.preventDefault(); dz.classList.add('on'); };
+  dz.ondragleave = () => dz.classList.remove('on');
+  dz.ondrop = (e) => { e.preventDefault(); dz.classList.remove('on'); send([...e.dataTransfer.files]); };
+  $('#fi').onchange = (e) => { send([...e.target.files]); e.target.value = ''; };
+  list();
+}
+async function upFile(f, box) {
+  const row = document.createElement('div'); row.className = 'upr'; row.innerHTML = `<span>${esc(f.name)}</span><progress max=100 value=0></progress>`; box.append(row);
+  const end = (t, bad) => row.lastChild.replaceWith(Object.assign(document.createElement('b'), { textContent: t, style: bad ? 'color:#b91c1c' : 'color:#0f7b3f' }));
+  try {
+    const { url } = await api('drive?a=init', 'POST', { name: f.name, type: f.type || 'application/octet-stream', size: f.size });
+    await new Promise((ok, no) => { const x = new XMLHttpRequest(); x.open('PUT', url); x.upload.onprogress = (e) => (row.lastChild.value = (e.loaded / e.total) * 100); x.onload = () => (x.status < 300 ? ok() : no(new Error('Google menolak unggahan (' + x.status + ')'))); x.onerror = () => no(new Error('Koneksi ke Google terputus')); x.send(f); });
+    end('✓ Terunggah');
+  } catch (e) { end('Gagal: ' + e.message, true); }
 }
 
 /* ===== mulai ===== */
