@@ -209,7 +209,7 @@ const yr = (l) => String(l.tgl || '').slice(0, 4);
 const numbered = (y) => D.surat.filter((s) => yr(s) === String(y) && TPL[s.tpl] && !TPL[s.tpl].nonum && +s.no);
 const lastNo = (y) => numbered(y).sort((a, b) => +b.no - +a.no)[0];
 const nextNo = (y) => (lastNo(y) ? +lastNo(y).no : 0) + 1;
-const lastOf = (pid, t) => D.surat.filter((s) => s.pid === pid && s.tpl === t).sort((a, b) => b.ts - a.ts)[0];
+let lastOf = (pid, t) => D.surat.filter((s) => s.pid === pid && s.tpl === t).sort((a, b) => b.ts - a.ts)[0];
 function bulanNo(l) { const m = pd(l.tgl || today()).getMonth() + 1; return l.blnMode === 'lalu' ? (m === 1 ? 12 : m - 1) : m; }
 const nomor = (l) => `${l.no || '......'}/${S().klas}/${S().unit}/${bulanNo(l)}/${yr(l)}`;
 const winnerOf = (pes, win) => { pes = pes || []; if (win !== '' && win != null && pes[+win]) return pes[+win]; return pes.find((x) => x.st === 'Memenuhi'); };
@@ -246,7 +246,7 @@ function newLetter(tpl, from) {
 }
 
 /* ===== pembuat HTML dokumen ===== */
-const kop = () => { const s = S(); return `<div class=kop>${s.logo ? `<img src="${s.logo}">` : ''}<div class=x><b>${esc(s.kop1)}</b><i>${esc(s.kop2)}</i>${nl(s.kop3)}</div></div>`; };
+let kop = () => { const s = S(); return `<div class=kop>${s.logo ? `<img src="${s.logo}">` : ''}<div class=x><b>${esc(s.kop1)}</b><i>${esc(s.kop2)}</i>${nl(s.kop3)}</div></div>`; };
 const parsePes = (t) => lines(t).map((x) => { const [nama, nilai, ket] = x.split('|').map((y) => y.trim()); return { nama, nilai: num(nilai), ket: ket || '' }; });
 const ol = (arr, cls = '') => `<ol ${cls}>${arr.map((x) => `<li>${x}</li>`).join('')}</ol>`;
 const kv = (rows, w = 135) => `<table class=k>${rows.map(([a, b]) => `<tr><td style="width:${w}px">${a}</td><td>:</td><td>${b}</td></tr>`).join('')}</table>`;
@@ -444,7 +444,7 @@ const angPanel = () => `<div class=angs>${L.angs.map((a, i) => { const p = D.pok
 <select data-copy style="margin-top:6px"><option value="">Salin susunan dari paket lain…</option>${otherAng().map((s) => `<option value="${s.id}">${esc((paketOf(s) || {}).nama || '')} · ${s.angs.length} anggota</option>`).join('')}</select><p><a data-go=pokja>Kelola Daftar Pokja</a></p>`;
 const pesEd = (path, wp) => { const pes = getP(L, path) || [], win = getP(L, wp); return `<div class=pes>${pes.map((x, i) => `<div class=pr><div class=r1><span class=n>${i + 1}</span><input data-p="${path}.${i}.nama" value="${esc(x.nama)}" placeholder="Nama peserta">${winnerOf(pes, win) === x ? '<span class="bd m">Pemenang</span>' : ''}<button class=ib data-act="pup:${path}|${i}" ${i ? '' : 'disabled'}>↑</button><button class=ib data-act="pdn:${path}|${i}" ${i < pes.length - 1 ? '' : 'disabled'}>↓</button><button class=ib data-act="prm:${path}|${i}">×</button></div><div class=g2><input data-p="${path}.${i}.nilai" value="${esc(x.nilai || '')}" placeholder="Nilai penawaran (angka)"><select data-p="${path}.${i}.st">${STP.map((s) => `<option ${s === x.st ? 'selected' : ''}>${s}</option>`).join('')}</select></div><input data-p="${path}.${i}.ket" value="${esc(x.ket)}" placeholder="Keterangan" style="margin-top:4px"><small class=muted data-hint="${path}.${i}"></small></div>`).join('')}</div>
 <div class=r3><button class="btn s" data-act="padd:${path}">+ Peserta</button><span class=muted>Pemenang</span><select data-p="${wp}"><option value="">Otomatis (teratas Memenuhi)</option>${pes.map((x, i) => `<option value="${i}" ${String(win) === String(i) ? 'selected' : ''}>${i + 1}. ${esc(x.nama)}</option>`).join('')}</select></div>`; };
-const paketSec = () => `<section class=sec><label style="margin-top:0">1 · Paket</label><div class=pkrow><select id=pk>${D.paket.map((p) => `<option value="${p.id}" ${p.id === L.pid ? 'selected' : ''}>${esc(p.nama)}</option>`).join('') || '<option value="">(belum ada paket)</option>'}</select><a data-go=paket>Ubah paket</a></div><p class=muted>Terisi dari paket: nama, surat tugas, satker, pagu, HPS, lokasi, sumber dana.</p><div id=wn>${warnHtml()}</div></section>`;
+let paketSec = () => `<section class=sec><label style="margin-top:0">1 · Paket</label><div class=pkrow><select id=pk>${D.paket.map((p) => `<option value="${p.id}" ${p.id === L.pid ? 'selected' : ''}>${esc(p.nama)}</option>`).join('') || '<option value="">(belum ada paket)</option>'}</select><a data-go=paket>Ubah paket</a></div><p class=muted>Terisi dari paket: nama, surat tugas, satker, pagu, HPS, lokasi, sumber dana.</p><div id=wn>${warnHtml()}</div></section>`;
 function missing() {
   const m = [], t = L.tpl, need = (c, lb, sel) => { if (!c) m.push([lb, sel]); };
   if (!paketOf(L)) need(0, 'Paket', '#pk');
