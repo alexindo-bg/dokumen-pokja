@@ -49,10 +49,13 @@ addEventListener('keydown', (e) => {
 
 /* ---------- Word (.doc), Cetak, Fokus & Zoom pratinjau ---------- */
 const kopTabel = () => { const s = S(); return `<table style="width:100%;border-collapse:collapse;border-bottom:4px double #2b3f8c"><tr><td style="width:100px;padding-left:${+s.logoOff || 10}px">${s.logo ? `<img src="${s.logo}" height="${+s.logoH || 86}">` : ''}</td><td style="text-align:center;color:#2b3f8c;font-size:7.5pt;line-height:1.3"><b style="font-size:12pt">${esc(s.kop1)}</b><br><span style="font-size:16pt">${esc(s.kop2)}</span><br>${nl(s.kop3)}</td><td style="width:100px"></td></tr></table><br>`; };
-function exportWord() {
-  saveL(); const k0 = kop; let body; kop = kopTabel; try { body = renderLetter(L); } finally { kop = k0; }
+function wordHtml() {
+  const k0 = kop; let body; kop = kopTabel; try { body = renderLetter(L); } finally { kop = k0; }
   const css = '@page{size:21cm 29.7cm;margin:2cm 2cm 2cm 2.5cm}body{font:12pt Arial}p{margin:6pt 0;text-align:justify}.tc{text-align:center;font-weight:bold}table{border-collapse:collapse}table.b td,table.b th{border:1px solid #000;padding:3px 6px;vertical-align:top}table.k td{vertical-align:top;padding:2px 6px 2px 0}ol{margin:4pt 0}.ttd{margin-left:55%;text-align:center}h4{font-size:12pt;margin:10pt 0 4pt}';
-  const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>${esc(judul(L))}</title><style>${css}</style></head><body>${body}</body></html>`;
+  return `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>${esc(judul(L))}</title><style>${css}</style></head><body>${body}</body></html>`;
+}
+function exportWord() {
+  saveL(); const html = wordHtml();
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['\ufeff', html], { type: 'application/msword' })); a.download = judul(L) + '.doc'; a.click(); setSt('Word diunduh');
 }
 let ZM = 1;
