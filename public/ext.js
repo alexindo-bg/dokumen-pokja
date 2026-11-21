@@ -56,7 +56,7 @@ function syncSelf() {
   else if (p.nama !== U.name || p.nip !== U.nip || p.uid !== U.id) { Object.assign(p, { nama: U.name, nip: U.nip, uid: U.id }); dirty(); }
 }
 const _load0 = load;
-load = async function () { await _load0(); syncSelf(); D.paket.forEach((p) => { p.eselon1 ??= ''; }); };
+load = async function () { await _load0(); BASE = JSON.stringify(D); syncSelf(); D.paket.forEach((p) => { p.eselon1 ??= ''; }); };
 start = async function () {
   applyTheme(U.theme); await load(); L = null; view = U.peran === 'ppk' ? 'dash' : 'home'; shell();
 };
@@ -466,3 +466,62 @@ function dashView() {
   $('#dpr').onclick = () => print();
   document.querySelectorAll('[data-dp]').forEach((t) => (t.onclick = () => { dashPk = t.dataset.dp; dashView(); }));
 }
+
+/* ---------- penyimpanan tanpa "Muat ulang": gabung otomatis saat bentrok ---------- */
+let BASE = null, savingNow = false, saveAgain = false;
+const jEq = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+const isObj = (x) => x && typeof x === 'object' && !Array.isArray(x);
+const hasId = (a) => a.every((x) => isObj(x) && x.id !== undefined);
+function merge3(b, m, t, key) { // b = dasar terakhir, m = perubahan saya, t = data terbaru di server
+  if (jEq(m, b) || jEq(m, t)) return t === undefined ? m : jEq(m, b) ? t : m;
+  if (jEq(t, b)) return m;
+  if (isObj(m) && isObj(t)) {
+    const bb = isObj(b) ? b : {}, r = {};
+    for (const k of new Set([...Object.keys(m), ...Object.keys(t)])) {
+      const iM = k in m, iT = k in t, iB = k in bb;
+      if (iM && iT) r[k] = merge3(bb[k], m[k], t[k], k);
+      else if (iM) { if (!iB || !jEq(m[k], bb[k])) r[k] = m[k]; }
+      else if (!iB || !jEq(t[k], bb[k])) r[k] = t[k];
+    }
+    return r;
+  }
+  if (Array.isArray(m) && Array.isArray(t)) {
+    const bb = Array.isArray(b) ? b : [];
+    if (hasId(m) && hasId(t) && hasId(bb)) {
+      const bm = new Map(bb.map((x) => [x.id, x])), mm = new Map(m.map((x) => [x.id, x])), out = [], seen = new Set();
+      for (const x of t) { seen.add(x.id); if (mm.has(x.id)) out.push(merge3(bm.get(x.id), mm.get(x.id), x, '')); else if (!bm.has(x.id) || !jEq(x, bm.get(x.id))) out.push(x); }
+      for (const x of m) if (!seen.has(x.id) && (!bm.has(x.id) || !jEq(x, bm.get(x.id)))) out.push(x);
+      return out;
+    }
+    if (key === 'log') { const s = new Set(t.map((x) => JSON.stringify(x))), bs = new Set(bb.map((x) => JSON.stringify(x))); return [...t, ...m.filter((x) => { const j = JSON.stringify(x); return !s.has(j) && !bs.has(j); })]; }
+  }
+  return m;
+}
+function syncInto(tg, src) { // isi D di tempat agar referensi yang dipegang tampilan tetap valid
+  if (Array.isArray(tg) && Array.isArray(src)) {
+    const by = new Map(tg.filter((x) => isObj(x) && x.id !== undefined).map((x) => [x.id, x])), out = src.map((x) => { const e = isObj(x) && by.get(x.id); if (e) { syncInto(e, x); return e; } return x; });
+    tg.length = 0; tg.push(...out); return;
+  }
+  for (const k of Object.keys(tg)) if (!(k in src)) delete tg[k];
+  for (const k of Object.keys(src)) { const a = tg[k], b = src[k]; if ((isObj(a) && isObj(b)) || (Array.isArray(a) && Array.isArray(b))) syncInto(a, b); else tg[k] = b; }
+}
+persist = async function (force) {
+  if (savingNow) { saveAgain = true; return; }
+  savingNow = true;
+  try {
+    let ok = false;
+    for (let i = 0; i < 5 && !ok; i++) {
+      const snap = JSON.stringify(D);
+      try { V = (await api('ws', 'PUT', { v: V, data: JSON.parse(snap) })).v; BASE = snap; ok = true; setSt('Tersimpan'); }
+      catch (e) {
+        if (e.status !== 409) { setSt('Gagal menyimpan: ' + e.message); return; }
+        const r = await api('ws'); V = r.v;
+        if (force === true || !r.data) continue;
+        const merged = merge3(BASE ? JSON.parse(BASE) : r.data, JSON.parse(JSON.stringify(D)), r.data, '');
+        syncInto(D, merged); BASE = JSON.stringify(r.data);
+        if (['home', 'pkt', 'dash', 'mon', 'drv'].includes(view)) { const fn = { home: homeView, pkt: pktView, dash: dashView, mon: monView, drv: driveView }[view]; try { fn(); } catch {} }
+      }
+    }
+    if (!ok) setSt('Gagal menyimpan: terlalu banyak perubahan bersamaan, coba lagi.');
+  } finally { savingNow = false; if (saveAgain) { saveAgain = false; dirty(); } }
+};
