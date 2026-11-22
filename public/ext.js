@@ -109,11 +109,25 @@ function notes() {
 }
 
 /* ---------- beranda ---------- */
+/* sapaan beranda: berganti sesuai jam, ucapan dipilih acak sekali per sesi lalu tetap (tidak berkedip saat layar disegarkan) */
+const GREET = {
+  dini: { e: '🧑‍💻', s: 'Apa yang kita selesaikan malam ini?', t: ['Masih begadang, {n}?', 'Larut malam, {n}! Istirahat ya', 'Halo {n}, tetap jaga kesehatan ya'] },
+  pagi: { e: '🙋', s: 'Apa yang kita kerjakan pagi ini?', t: ['Selamat pagi, {n}!', 'Pagi, {n}! Semangat hari ini', 'Selamat pagi, {n}. Sudah sarapan?', 'Hai {n}, semangat pagi!'] },
+  siang: { e: '🧑‍💼', s: 'Apa yang kita kerjakan siang ini?', t: ['Selamat siang, {n}!', 'Siang, {n}! Sudah makan siang?', 'Halo {n}, tetap semangat ya', 'Selamat siang, {n}. Lanjut kerja?'] },
+  sore: { e: '🚶', s: 'Apa yang perlu dirampungkan sore ini?', t: ['Selamat sore, {n}!', 'Sore, {n}! Sedikit lagi selesai', 'Halo {n}, sore yang produktif!', 'Sore, {n}! Ngopi dulu?'] },
+  malam: { e: '🧘', s: 'Apa yang kita kerjakan malam ini?', t: ['Selamat malam, {n}!', 'Malam, {n}! Jangan terlalu larut ya', 'Halo {n}, jangan lupa istirahat', 'Malam, {n}! Masih ada yang dikejar?'] },
+};
+const GCH = {};
+function greet(name) {
+  const h = new Date().getHours(), k = h < 4 ? 'dini' : h < 11 ? 'pagi' : h < 15 ? 'siang' : h < 18 ? 'sore' : 'malam', g = GREET[k];
+  if (GCH[k] == null) GCH[k] = Math.floor(Math.random() * g.t.length);
+  return { e: g.e, s: g.s, t: g.t[GCH[k]].replace('{n}', esc(name)) };
+}
 function homeView() {
   const I = D.paket.map((p) => pktInfo(p.id)), bln = today().slice(0, 7);
   const st = [['▦', 'Total paket', D.paket.length], ['✎', 'Surat bulan ini', D.surat.filter((s) => (s.tgl || '').startsWith(bln)).length], ['◔', 'Paket sedang tayang', I.filter((x) => x.status === 'Tayang').length], ['✓', 'Paket selesai (laporan)', I.filter((x) => x.status === 'Selesai').length]];
-  const nt = (NT = notes()).slice(0, 4);
-  $('#main').innerHTML = `<div class=hg><div class=hero><span style="color:var(--m);font-size:13px">${hari(today())}, ${tgl(today())}</span><h2>Hi, ${esc(firstName(U.name))}!</h2><p>Apa yang kita kerjakan hari ini?</p>
+  const nt = (NT = notes()).slice(0, 4), G = greet(firstName(U.name));
+  $('#main').innerHTML = `<div class=hg><div class=hero><span style="color:var(--m);font-size:13px">${hari(today())}, ${tgl(today())}</span><h2 class=gh><span class=gi aria-hidden=true>${G.e}</span>${G.t}</h2><p>${G.s}</p>
   <div class=ql><a data-n=reviu>Undangan reviu</a><a data-n=eval>BA hasil evaluasi</a><a data-n=nego>BA negosiasi harga</a><a data-n=lap>Laporan hasil pemilihan</a><a data-vv=pkt>Riwayat paket</a><a data-vv=dash>Dashboard pimpinan</a></div><div class=ch3>${avOf(U)}</div></div>
   <div class=ntf><h3>Pengingat <small data-vv=none id=nall>lihat semua</small></h3>${ntHtml(nt)}</div></div>
   <div class=sg>${st.map(([i, t, v]) => `<div class=sc><i>${i}</i><small>${t}</small><b>${v}</b></div>`).join('')}</div>

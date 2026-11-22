@@ -676,7 +676,11 @@ const JENIS = ['Benih Tebu', 'Senyawa Humat', 'Seragam Penyuluh', 'Pupuk', 'Beni
 const SATU = ['Kg', 'Liter', 'Ton', 'Kwintal', 'Unit', 'Paket', 'Set', 'Batang', 'Butir', 'Buah', 'Lembar', 'Pcs', 'Meter'];
 let mtab = 'tbl', mq = '', mf = '', pq = '', curp = null;
 const pkt = () => D.mpk.find((x) => x.id === curp);
-const fnum = (v) => (v === '' || v == null ? '' : Number(num(v)).toLocaleString('id-ID'));
+/* angka monitoring: "1.500" = seribu lima ratus, "12,5" / "12.5" = desimal */
+const dnum = (v) => { let t = String(v ?? '').trim().replace(/\s/g, ''); if (!t) return 0; t = /^-?\d{1,3}(\.\d{3})+(,\d+)?$/.test(t) ? t.replace(/\./g, '').replace(',', '.') : t.replace(',', '.'); const n = parseFloat(t.replace(/[^\d.\-]/g, '')); return isNaN(n) ? 0 : n; };
+const idn = (n) => n.toLocaleString('id-ID', { maximumFractionDigits: 3 });
+const fnum = (v) => (v === '' || v == null ? '' : idn(dnum(v)));
+const msel = new Set(); // wilayah yang dicentang (untuk total & ubah massal)
 const dl = (id, arr) => `<datalist id=${id}>${[...new Set(arr)].map((x) => `<option value="${esc(x)}">`).join('')}</datalist>`;
 const dls = () => dl('jl', [...JENIS, ...D.mpk.flatMap((p) => [p.jenis, ...p.wil.map((r) => r.jenis)]).filter(Boolean)]) + dl('sl', [...SATU, ...D.mpk.flatMap((p) => p.wil.map((r) => r.sat)).filter(Boolean)]);
 function modal(html) { const m = document.createElement('div'); m.className = 'mdl'; m.innerHTML = `<div class=mbox>${html}</div>`; m.onmousedown = (e) => { if (e.target === m) m.remove(); }; document.body.append(m); return m; }
@@ -698,7 +702,7 @@ function monList() {
   const root = $('#mb');
   root.oninput = (e) => { const t = e.target; if (t.id === 'pqi') { pq = t.value; monList(); const q = $('#pqi'); q.focus(); q.setSelectionRange(pq.length, pq.length); return; } if (!t.dataset.pf) return; D.mpk.find((x) => x.id === t.closest('tr').dataset.id)[t.dataset.pf] = t.value; dirty(); };
   root.onclick = (e) => { const t = e.target;
-    if (t.dataset.o) { curp = t.dataset.o; mq = mf = ''; monView(); }
+    if (t.dataset.o) { curp = t.dataset.o; mq = mf = ''; msel.clear(); monView(); }
     if (t.dataset.d && confirm('Hapus paket beserta seluruh data wilayahnya?')) { D.mpk = D.mpk.filter((x) => x.id !== t.dataset.d); dirty(); monList(); }
     if (t.id === 'addp') { const m = modal(`<h3>Tambah paket</h3><label>Nama paket</label><input id=an placeholder="mis. Pengadaan Benih Tebu Tahap IV"><label>Jenis / komoditi</label><input id=aj list=jl placeholder="Pilih atau ketik sendiri"><p style="text-align:right"><button class=btn id=ac>Batal</button> <button class="btn p" id=ao>Tambah</button></p>`); $('#an').focus(); $('#ac').onclick = () => m.remove(); $('#ao').onclick = () => { const n = $('#an').value.trim(); if (!n) return $('#an').focus(); D.mpk.push({ id: uid(), nama: n, jenis: $('#aj').value.trim(), wil: [] }); dirty(); m.remove(); monList(); }; } };
 }
@@ -707,28 +711,46 @@ function monDetail() {
   const p = pkt(), st = stList();
   const vis = () => p.wil.filter((r) => (!mq || (r.wil + ' ' + r.prov).toLowerCase().includes(mq.toLowerCase())) && (!mf || r.status === mf)), rows = vis();
   const chipsHtml = () => { const cnt = {}; p.wil.forEach((r) => (cnt[r.status] = (cnt[r.status] || 0) + 1)); return Object.entries(cnt).map(([k, v]) => `<span class="pill ${stCls(k)} ${mf === k ? 'sel' : ''}" data-s="${esc(k)}" style="cursor:pointer">${esc(k)} · ${v}</span>`).join(''); };
-  const footRow = () => { const vs = vis(), tot = vs.reduce((a, r) => { a.l += num(r.lahan); a.p += num(r.penawar); const u = (r.sat || '').trim() || '-'; a.q[u] = (a.q[u] || 0) + num(r.qty); return a; }, { l: 0, p: 0, q: {} });
-    return `<tr><td></td><td>Total (${vs.length} wilayah)</td><td></td><td class=n>${tot.l.toLocaleString('id-ID')}</td><td colspan=2 class=tq>${Object.entries(tot.q).map(([u, v]) => `${v.toLocaleString('id-ID')} ${esc(u)}`).join('<br>') || '0'}</td><td></td><td></td><td class=c>${tot.p}</td><td></td></tr>`; };
+  const sumOf = (vs) => vs.reduce((a, r) => { a.l += dnum(r.lahan); a.p += num(r.penawar); const u = (r.sat || '').trim() || '-'; a.q[u] = (a.q[u] || 0) + dnum(r.qty); return a; }, { l: 0, p: 0, q: {} });
+  const qtxt = (q) => Object.entries(q).map(([u, v]) => `${idn(v)} ${esc(u)}`).join('<br>') || '0';
+  const picked = () => p.wil.filter((r) => msel.has(r.id));
+  const footRow = () => { const vs = vis(), tot = sumOf(vs), ps = picked(), sp = sumOf(ps);
+    return `<tr><td></td><td>Total semua tampil (${vs.length} wilayah)</td><td></td><td class=n>${idn(tot.l)}</td><td colspan=2 class=tq>${qtxt(tot.q)}</td><td></td><td></td><td class=c>${tot.p}</td><td></td></tr>${ps.length ? `<tr class=sumsel><td></td><td>Total DIPILIH (${ps.length} wilayah)</td><td></td><td class=n>${idn(sp.l)}</td><td colspan=2 class=tq>${qtxt(sp.q)}</td><td></td><td></td><td class=c>${sp.p}</td><td></td></tr>` : ''}`; };
+  const selBar = () => { const ps = picked(); if (!ps.length) return '<p class=muted style="margin:6px 2px">Centang wilayah di kolom NO untuk menjumlahkan lahan, quantity, dan penawar item yang dipilih, atau mengubahnya sekaligus.</p>'; const sp = sumOf(ps);
+    return `<div class=selbar><div><b>${ps.length} wilayah dipilih</b> — Lahan <b>${idn(sp.l)}</b> Ha · Quantity <b>${Object.entries(sp.q).map(([u, v]) => `${idn(v)} ${esc(u)}`).join(' + ') || '0'}</b> · Penawar <b>${sp.p}</b></div>
+    <div class=bulk><span>Ubah massal:</span><input id=bq class=n placeholder="Quantity" inputmode=decimal><select id=bu><option value="">Satuan…</option>${satOpts('')}</select><select id=bs><option value="">Status…</option>${st.map((x) => `<option>${esc(x)}</option>`).join('')}</select><button class="btn s p" id=bok>Terapkan</button><button class="btn s" id=bno>Batal pilih</button></div></div>`; };
+  const satOpts = (cur) => [...new Set([...SATU, ...(cur && !SATU.includes(cur) ? [cur] : [])])].map((x) => `<option ${x === cur ? 'selected' : ''}>${esc(x)}</option>`).join('') + '<option value="__baru">+ Satuan lain…</option>';
   $('#mb').innerHTML = `${dls()}<p style="margin:12px 0 0"><a id=bk>‹ Semua paket</a></p><div class=tools style="margin-top:8px"><input id=pn class=big value="${esc(p.nama)}" placeholder="Nama paket"><input id=pj list=jl value="${esc(p.jenis)}" placeholder="Jenis / komoditi paket" style="max-width:240px"></div>
   <div class=chips>${chipsHtml()}</div>
   <div class=tools><input id=mqi placeholder="Cari kabupaten/kota…" value="${esc(mq)}"><select id=mfi><option value="">Semua status progress</option>${st.map((x) => `<option ${x === mf ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select><button class="btn p" id=addw>+ Tambah wilayah</button><button class=btn id=adds>+ Status baru</button></div>
-  <div class=tw><table class="mt det"><thead><tr><th>NO</th><th>PROVINSI / WILAYAH / KABUPATEN / KOTA</th><th>JENIS / KOMODITI</th><th>LAHAN (HA)</th><th colspan=2>QUANTITY &amp; SATUAN</th><th>STATUS PROGRESS PENGADAAN</th><th>PENAWARAN SELESAI</th><th>JUMLAH PENAWAR</th><th>PETA</th></tr></thead><tbody>${rows.map((r, i) => `<tr data-id=${r.id}><td>${i + 1}</td><td><input class=tag data-f=prov value="${esc(r.prov)}" placeholder="Provinsi" style="color:${pcol(r.prov)};background:${pcol(r.prov)}14"><input class=nm data-f=wil value="${esc(r.wil)}" placeholder="Kabupaten / Kota"></td><td><input class=jn data-f=jenis list=jl value="${esc(r.jenis || '')}" placeholder="${esc(p.jenis || 'Komoditi')}"></td><td><input class=n data-f=lahan value="${fnum(r.lahan)}"></td><td><input class=n data-f=qty value="${fnum(r.qty)}"></td><td><input class=su data-f=sat list=sl value="${esc(r.sat || '')}" placeholder="Satuan"></td><td><select class="pill ${stCls(r.status)}" data-f=status>${st.map((x) => `<option ${x === r.status ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select></td><td><input type=datetime-local data-f=selesai value="${esc(r.selesai)}"></td><td><input type=number min=0 class=c data-f=penawar value="${esc(r.penawar)}"></td><td class=act><a class=pt data-m=${r.id}>Peta</a><a class=x data-pe=${r.id} title="Ubah tautan peta">✎</a><a class=x data-x=${r.id} title="Hapus baris">×</a></td></tr>`).join('') || '<tr><td colspan=10 class=m style="padding:24px;text-align:center">Belum ada wilayah. Klik “+ Tambah wilayah”.</td></tr>'}</tbody><tfoot>${footRow()}</tfoot></table></div>`;
+  <div id=selbar>${selBar()}</div><div class=tw><table class="mt det"><thead><tr><th><label class=ckn title="Pilih semua yang tampil"><input type=checkbox id=sa ${rows.length && rows.every((r) => msel.has(r.id)) ? 'checked' : ''}> NO</label></th><th>PROVINSI / WILAYAH / KABUPATEN / KOTA</th><th>JENIS / KOMODITI</th><th>LAHAN (HA)</th><th colspan=2>QUANTITY &amp; SATUAN</th><th>STATUS PROGRESS PENGADAAN</th><th>PENAWARAN SELESAI</th><th>JUMLAH PENAWAR</th><th>PETA</th></tr></thead><tbody>${rows.map((r, i) => `<tr data-id=${r.id} class="${msel.has(r.id) ? 'pk' : ''}"><td><label class=ckn><input type=checkbox data-ck ${msel.has(r.id) ? 'checked' : ''}> ${i + 1}</label></td><td><input class=tag data-f=prov value="${esc(r.prov)}" placeholder="Provinsi" style="color:${pcol(r.prov)};background:${pcol(r.prov)}14"><input class=nm data-f=wil value="${esc(r.wil)}" placeholder="Kabupaten / Kota"></td><td><input class=jn data-f=jenis list=jl value="${esc(r.jenis || '')}" placeholder="${esc(p.jenis || 'Komoditi')}"></td><td><input class=n data-f=lahan inputmode=decimal value="${fnum(r.lahan)}"></td><td><input class=n data-f=qty inputmode=decimal value="${fnum(r.qty)}"></td><td><select class=su data-f=sat><option value="">—</option>${satOpts(r.sat || '')}</select></td><td><select class="pill ${stCls(r.status)}" data-f=status>${st.map((x) => `<option ${x === r.status ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select></td><td><input type=datetime-local data-f=selesai value="${esc(r.selesai)}"></td><td><input type=number min=0 class=c data-f=penawar value="${esc(r.penawar)}"></td><td class=act><a class=pt data-m=${r.id}>Peta</a><a class=x data-pe=${r.id} title="Ubah tautan peta">✎</a><a class=x data-x=${r.id} title="Hapus baris">×</a></td></tr>`).join('') || '<tr><td colspan=10 class=m style="padding:24px;text-align:center">Belum ada wilayah. Klik “+ Tambah wilayah”.</td></tr>'}</tbody><tfoot>${footRow()}</tfoot></table></div>`;
   const root = $('#mb'), refocus = (id, v) => { const q = $(id); q.focus(); q.setSelectionRange(v.length, v.length); };
-  root.oninput = root.onchange = (e) => { const t = e.target;
+  const inp = (e) => { const t = e.target;
     if (t.id === 'mqi') { mq = t.value; monDetail(); refocus('#mqi', mq); return; }
     if (t.id === 'mfi') { mf = t.value; monDetail(); return; }
     if (t.id === 'pn') { p.nama = t.value; dirty(); return; } if (t.id === 'pj') { p.jenis = t.value; dirty(); return; }
     const tr = t.closest('tr[data-id]'); if (!tr || !t.dataset.f) return;
-    const r = p.wil.find((x) => x.id === tr.dataset.id); r[t.dataset.f] = t.value;
+    const r = p.wil.find((x) => x.id === tr.dataset.id);
+    if (t.dataset.f === 'sat' && t.value === '__baru') { const n = (prompt('Satuan baru (mis. Kg, Ton, Unit)') || '').trim(); if (n) { r.sat = n; dirty(); monDetail(); } else t.value = r.sat || ''; return; }
+    r[t.dataset.f] = t.value;
     if (t.dataset.f === 'status') t.className = 'pill ' + stCls(t.value);
     dirty(); if (e.type === 'change' && ['lahan', 'qty'].includes(t.dataset.f)) t.value = fnum(t.value);
-    if (['lahan', 'qty', 'sat', 'penawar', 'status'].includes(t.dataset.f)) { $('.det tfoot').innerHTML = footRow(); $('.chips').innerHTML = chipsHtml(); } };
+    if (['lahan', 'qty', 'sat', 'penawar', 'status'].includes(t.dataset.f)) { $('.det tfoot').innerHTML = footRow(); $('.chips').innerHTML = chipsHtml(); $('#selbar').innerHTML = selBar(); } };
+  root.onfocusin = (e) => { const t = e.target; if (t.dataset && ['lahan', 'qty'].includes(t.dataset.f)) t.select(); if (t.id === 'bq') t.select(); };
+  const chg = (e) => { const t = e.target;
+    if (t.id === 'sa') { vis().forEach((r) => (t.checked ? msel.add(r.id) : msel.delete(r.id))); monDetail(); return; }
+    if (t.dataset && t.dataset.ck !== undefined) { const id = t.closest('tr').dataset.id; t.checked ? msel.add(id) : msel.delete(id); t.closest('tr').classList.toggle('pk', t.checked); $('.det tfoot').innerHTML = footRow(); $('#selbar').innerHTML = selBar(); const sa = $('#sa'); if (sa) sa.checked = vis().length > 0 && vis().every((r) => msel.has(r.id)); }
+    if (t.id === 'bu' && t.value === '__baru') { const n = (prompt('Satuan baru') || '').trim(); t.innerHTML = `<option value="">Satuan…</option>${satOpts(n)}`; if (n) t.value = n; else t.value = ''; } };
+  root.oninput = inp; root.onchange = (e) => { inp(e); chg(e); };
   root.onclick = (e) => { const t = e.target;
-    if (t.id === 'bk') { curp = null; monView(); }
+    if (t.id === 'bk') { curp = null; msel.clear(); monView(); }
     if (t.dataset.s) { mf = mf === t.dataset.s ? '' : t.dataset.s; monDetail(); }
+    if (t.id === 'bno') { msel.clear(); monDetail(); }
+    if (t.id === 'bok') { const q = $('#bq').value, u = $('#bu').value, sv = $('#bs').value; if (q === '' && !u && !sv) return alert('Isi quantity, satuan, atau status yang mau diterapkan.');
+      picked().forEach((r) => { if (q !== '') r.qty = q; if (u && u !== '__baru') r.sat = u; if (sv) r.status = sv; }); dirty(); monDetail(); }
     if (t.id === 'addw') addWil(p);
     if (t.id === 'adds') { const n = (prompt('Nama status baru') || '').trim(); if (n) { D.statusList = [...stList(), n]; dirty(); monDetail(); } }
-    if (t.dataset.x && confirm('Hapus wilayah ini?')) { p.wil = p.wil.filter((x) => x.id !== t.dataset.x); dirty(); monDetail(); }
+    if (t.dataset.x && confirm('Hapus wilayah ini?')) { p.wil = p.wil.filter((x) => x.id !== t.dataset.x); msel.delete(t.dataset.x); dirty(); monDetail(); }
     if (t.dataset.pe) { const r = p.wil.find((x) => x.id === t.dataset.pe), u = prompt('Tautan peta (kosongkan = cari otomatis di Google Maps)', r.peta || ''); if (u !== null) { r.peta = u.trim(); dirty(); } }
     if (t.dataset.m) { const r = p.wil.find((x) => x.id === t.dataset.m), q = `${r.wil} ${r.prov}`; const m = modal(`<h3>${esc(r.wil)} <span class=muted>${esc(r.prov)}</span></h3><iframe src="https://www.google.com/maps?q=${encodeURIComponent(q)}&output=embed" loading=lazy style="width:100%;height:55vh;border:1px solid #e7ebf3;border-radius:12px"></iframe><p style="text-align:right"><a class="btn s" href="${esc(mapUrl(r))}" target=_blank rel=noopener>Buka di Google Maps</a> <button class="btn s p" id=mc>Tutup</button></p>`); $('#mc').onclick = () => m.remove(); } };
 }
