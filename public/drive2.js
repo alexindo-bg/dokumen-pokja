@@ -49,7 +49,8 @@ async function rvLoad(k, f) {
   catch (e) { rvSet(k, `<span style="color:#b3261e">Gagal: ${esc(e.message)}</span>`); return false; }
 }
 function rvFromDrive(k) { drivePick('Pilih ' + RVN[k] + ' dari Drive', null, (f) => rvLoad(k, f)); }
-const RVKW = { ppp: /permintaan|pemilihan penyedia|\bppp\b/i, kak: /\bkak\b|kerangka acuan/i, hps: /\bhps\b|harga perkiraan/i, ssuk: /ssuk|syarat.{0,12}umum/i, sskk: /sskk|syarat.{0,12}khusus/i };
+const RVKW = { ppp: /permintaan|pemilihan penyedia|\bppp\b/i, kak: /\bkak\b|kerangka acuan/i, hps: /\bhps\b|harga perkiraan/i, ssuk: /ssuk|syarat.{0,12}umum/i, sskk: /sskk|syarat.{0,12}khusus/i, kontrak: /kontrak|perjanjian|surat pesanan|rancangan/i, anggaran: /dipa|\bpok\b|anggaran|rka/i, rup: /\brup\b|sirup/i, pasar: /pasar|analisis/i };
+const RVEX = { kontrak: /ssuk|sskk|syarat/i, kak: /hps|harga perkiraan/i };
 async function rvAuto() {
   const msg = $('#rvmsg'), p = paketOf(L); if (!p) { msg.textContent = 'Pilih paket dulu.'; return; }
   msg.textContent = 'Mencari di Drive…';
@@ -58,7 +59,7 @@ async function rvAuto() {
   const ok = T.files.filter((f) => OKT.test(f.mimeType)), pool = fo ? ok.filter((f) => (f.parents || [])[0] === fo.id) : ok;
   const got = [], miss = [];
   for (const [k] of RV) {
-    const f = pool.filter((x) => RVKW[k].test(x.name)).sort((a, b) => new Date(b.modifiedTime) - new Date(a.modifiedTime))[0];
+    const f = pool.filter((x) => RVKW[k].test(x.name) && !(RVEX[k] && RVEX[k].test(x.name))).sort((a, b) => new Date(b.modifiedTime) - new Date(a.modifiedTime))[0];
     if (f && (await rvLoad(k, f))) got.push(RVS[k]); else miss.push(RVS[k]);
   }
   if (!got.length) { msg.textContent = `Tidak ada dokumen yang cocok${fo ? ` di folder “${fo.name}”` : ''}. Beri nama berkas memuat kata KAK/HPS/SSUK/SSKK/Permintaan, atau pilih manual.`; return; }
