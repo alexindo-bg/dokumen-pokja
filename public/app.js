@@ -89,7 +89,7 @@ Dalam hal PPK/KPA tidak menyetujui hasil pemilihan Penyedia, PPK/KPA menyampaika
   buktiPenutup: `Sehubungan hal di atas, Saudara agar menyiapkan dokumen kualifikasi dan penawaran.`,
   buktiTembusan: `Kepala Biro Umum dan Pengadaan selaku Kepala UKPBJ Kementerian Pertanian;\nInspektur Jenderal Kementerian Pertanian.`,
   reviuIsi: `Menindaklanjuti Surat Tugas {pejabatST} Nomor {stNo} tanggal {stTgl} tentang Kelompok Kerja Pemilihan Penyedia {nama}, bersama ini Pokja Pemilihan akan melakukan {kegiatan} paket pekerjaan dimaksud.`,
-  evalPembuka: `Pada hari ini {hariTgl}, kami selaku Kelompok Kerja (Pokja) Pemilihan berdasarkan Surat Tugas {pejabatST} Nomor: {stNo} tanggal {stTgl}, pada:`,
+  evalPembuka: `Pada hari ini {hariKata}, kami selaku Kelompok Kerja (Pokja) Pemilihan {nama} berdasarkan Surat {pejabatST} Nomor: {stNo} tanggal {stTgl}, pada:`,
   evalIsi: `Dengan ini kami Pokja Pemilihan telah melaksanakan proses evaluasi Mini Kompetisi dengan uraian sebagai berikut:`,
   evalPenutup: `Demikian Berita Acara ini dibuat dengan sebenarnya untuk dipergunakan sebagaimana mestinya.`,
 };
@@ -116,7 +116,17 @@ async function persist() {
   try { V = (await api('ws', 'PUT', { v: V, data: D })).v; setSt('Tersimpan'); }
   catch (e) { if (e.status === 409) { alert(e.message); location.reload(); } else setSt('Gagal menyimpan: ' + e.message); }
 }
-async function load() { const r = await api('ws'); V = r.v; D = r.data || DEF(); D.set = { ...DEF().set, ...D.set }; D.tpl ||= {}; D.monitor ||= []; if (!D.mpk) { D.mpk = D.wil && D.wil.length ? [{ id: uid(), nama: 'Paket Monitoring', jenis: '', wil: D.wil }] : []; delete D.wil; } D.mpk.forEach((p) => p.wil.forEach((r) => (r.sat ||= 'Kg'))); if (!r.data) await persist(); }
+async function load() { const r = await api('ws'); V = r.v; D = r.data || DEF(); D.set = { ...DEF().set, ...D.set }; D.tpl ||= {}; D.monitor ||= []; if (!D.mpk) { D.mpk = D.wil && D.wil.length ? [{ id: uid(), nama: 'Paket Monitoring', jenis: '', wil: D.wil }] : []; delete D.wil; } D.mpk.forEach((p) => p.wil.forEach((r) => (r.sat ||= 'Kg'))); purgeObs(); if (!r.data) await persist(); }
+
+/* surat jenis lama (kertas kerja evaluasi / per produk) sudah dihapus: datanya dipindah ke D.arsip (tidak dibuang) */
+const OBS = ['kk', 'lk'];
+const EVAL_PEMBUKA_LAMA = 'Pada hari ini {hariTgl}, kami selaku Kelompok Kerja (Pokja) Pemilihan berdasarkan Surat Tugas {pejabatST} Nomor: {stNo} tanggal {stTgl}, pada:';
+function purgeObs() {
+  const old = (D.surat || []).filter((s) => OBS.includes(s.tpl));
+  if (old.length) { (D.arsip ||= []).push(...old); D.surat = D.surat.filter((s) => !OBS.includes(s.tpl)); }
+  if (D.last) OBS.forEach((k) => delete D.last[k]);
+  if (D.tpl && D.tpl.evalPembuka === EVAL_PEMBUKA_LAMA) delete D.tpl.evalPembuka; // pakai kalimat pembuka format baru
+}
 
 /* ===== autentikasi (kode referral) ===== */
 function authView(mode = 'login', err = '') {
@@ -194,7 +204,6 @@ const TPL = {
   eval: { n: 'BA hasil evaluasi', d: 'Berita acara hasil evaluasi, peringkat, dan pemenang.', i: '✓' },
   batal: { n: 'BA pembatalan kompetisi', d: 'Berita acara pembatalan mini kompetisi beserta alasan dan tindak lanjut.', i: '⊘' },
   lap: { n: 'Laporan hasil pemilihan', d: 'Laporan hasil pemilihan untuk PPK.', i: '▣' },
-  kk: { n: 'Kertas kerja evaluasi', d: 'Lembar kerja evaluasi per peserta, bisa lebih dari 1 produk.', i: '☰', nonum: 1 },
 };
 const KEYS = Object.keys(TPL);
 const DOKS = ['Spesifikasi Teknis', 'KAK', 'HPS', 'Rancangan Kontrak', 'Dokumen Anggaran', 'Jadwal Pelaksanaan'];
@@ -203,7 +212,6 @@ const TINDAK = ['Mini Kompetisi Ulang', 'Menggunakan metode E-Purchasing lain se
 const JENISMK = ['Mini Kompetisi Barang Itemized', 'Mini Kompetisi Barang Non Itemized', 'Mini Kompetisi Barang Jasa Lainnya Itemized', 'Mini Kompetisi Barang Jasa Lainnya Non Itemized', 'Mini Kompetisi Pekerjaan Konstruksi'];
 const STP = ['Memenuhi', 'Tidak Memenuhi', 'Gugur'];
 const listID = (a, last = 'dan') => (a.length < 2 ? a[0] || '' : a.length === 2 ? a.join(' ' + last + ' ') : a.slice(0, -1).join(', ') + ', ' + last + ' ' + a[a.length - 1]);
-const defProd = () => ({ jml: '', sat: 'Kg', hps: '', tot: '', rows: [['Kategori', '', ''], ['KBLI', '', ''], ['Tipe Kategori', 'Barang', 'Barang'], ['Spesifikasi', '', ''], ['Struktur Harga', '', ''], ['Informasi Lainnya', '', '']].map(([l, k, e]) => ({ l, k, e, n: '' })) });
 const paketOf = (l) => D.paket.find((p) => p.id === l.pid);
 const yr = (l) => String(l.tgl || '').slice(0, 4);
 const numbered = (y) => D.surat.filter((s) => yr(s) === String(y) && TPL[s.tpl] && !TPL[s.tpl].nonum && +s.no);
@@ -230,7 +238,7 @@ function norm(l) {
 }
 function newLetter(tpl, from) {
   const last = (D.last && D.last[tpl]) || {};
-  const l = { id: uid(), tpl, pid: from?.pid ?? D.paket[D.paket.length - 1]?.id, tgl: today(), kota: tpl === 'lap' || tpl === 'dmk' || tpl === 'kk' ? 'Jakarta' : S().kota, blnMode: 'ikut', scan: true, ttd: D.pokja[0]?.id, o: {}, ...clone(last) };
+  const l = { id: uid(), tpl, pid: from?.pid ?? D.paket[D.paket.length - 1]?.id, tgl: today(), kota: tpl === 'lap' || tpl === 'dmk' ? 'Jakarta' : S().kota, blnMode: 'ikut', scan: true, ttd: D.pokja[0]?.id, o: {}, ...clone(last) };
   const same = D.surat.filter((s) => s.pid === l.pid && s.angs && s.angs.length).sort((a, b) => b.ts - a.ts)[0];
   l.angs = same ? clone(same.angs) : D.pokja.map((p) => ({ id: p.id, ttd: true }));
   if (tpl === 'reviu') Object.assign(l, { docs: l.docs || ['Spesifikasi Teknis', 'HPS'], konsol: l.konsol ?? true, jam: l.jam || '10.00', cara: l.cara || 'Daring', pen: l.pen || { ppk: true, tim: true, pokja: true } });
@@ -239,7 +247,6 @@ function newLetter(tpl, from) {
   if (tpl === 'eval') l.items = [{ nama: '', pes: [], win: '' }];
   if (tpl === 'batal') Object.assign(l, { alasanSel: [], alasanTxt: '', dasar: l.dasar || 'pertimbangan dan penilaian Pokja Pemilihan', tindak: l.tindak || TINDAK[0], jenisMK: l.jenisMK || '' });
   if (tpl === 'lap') { const e = lastOf(l.pid, 'eval'); l.pes = e ? clone(norm(e).items[0].pes) : []; l.win = e ? e.items[0].win : ''; }
-  if (tpl === 'kk') l.prods = [defProd()];
   if (['reviu', 'bukti', 'lap'].includes(tpl)) l.judulTengah = true;
   if (from && from.tpl === tpl) Object.assign(l, clone(from), { id: l.id, tgl: today(), no: undefined, ts: undefined });
   return norm(l);
@@ -256,7 +263,7 @@ function vars(l) {
   const p = paketOf(l) || {}, w = winnerOf(itemsPes(l), l.win) || {};
   const keg = l.o && l.o.kegiatan != null ? l.o.kegiatan : `${l.konsol !== false ? 'Konsolidasi dan ' : ''}Reviu ${listID(l.docs || [])}`;
   const d = l.tgl ? pd(l.tgl) : new Date();
-  return { nama: p.nama || '......', stNo: p.stNo || '......', stTgl: tgl(p.stTgl), pejabatST: p.pejabatST || S().pejabat, satker: p.satker || '......', baNo: l.baNo || '......', baTgl: tgl(l.baTgl), pemenang: w.nama || '......', dok: listID(l.docs || []) || '......', kegiatan: keg, cara: (l.cara || 'Daring') === 'Daring' ? 'secara daring' : 'secara luring', hariTgl: `${hari(l.tgl)} tanggal ${d.getDate()} bulan ${BL[d.getMonth()]} tahun ${d.getFullYear()}` };
+  return { nama: p.nama || '......', stNo: p.stNo || '......', stTgl: tgl(p.stTgl), pejabatST: p.pejabatST || S().pejabat, satker: p.satker || '......', baNo: l.baNo || '......', baTgl: tgl(l.baTgl), pemenang: w.nama || '......', dok: listID(l.docs || []) || '......', kegiatan: keg, cara: (l.cara || 'Daring') === 'Daring' ? 'secara daring' : 'secara luring', hariTgl: `${hari(l.tgl)} tanggal ${d.getDate()} bulan ${BL[d.getMonth()]} tahun ${d.getFullYear()}`, hariKata: `${hari(l.tgl)} tanggal ${cap(tb(d.getDate()))} bulan ${BL[d.getMonth()]} tahun ${cap(tb(d.getFullYear()))}` };
 }
 /* nilai otomatis yang boleh ditimpa manual (L.o) */
 function lapAuto(l) {
@@ -297,7 +304,12 @@ const jt = () => ''; // judul tengah (UNDANGAN / LAPORAN HASIL PEMILIHAN) dihapu
 const headBlock = (l, hal) => { const pos = l.letak && l.letak !== 'auto' ? l.letak : l.tpl === 'bukti' ? 'sejajar' : 'atas'; return `${pos === 'atas' ? `<p style="text-align:right;margin:0 0 6px">${esc(l.kota)}, ${tgl(l.tgl)}</p>` : ''}<table class=hd style="width:100%"><tr><td style="width:70px">Nomor</td><td style="width:14px">:</td><td>${nomor(l)}</td><td style="text-align:right">${pos === 'sejajar' ? tgl(l.tgl) : ''}</td></tr><tr><td>Lampiran</td><td>:</td><td colspan=2>${esc(l.lamp ?? '-')}</td></tr><tr><td>Hal</td><td>:</td><td colspan=2>${esc(hal)}</td></tr></table>`; };
 const yth = (arr, di) => `<p style="margin:22px 0 0">Yth.</p>${arr.length > 1 ? ol(arr.map(esc)) : `<p style="margin:0;text-align:left">${arr.map(esc).join('<br>')}</p>`}<p style="margin:0;text-align:left">di<br>&nbsp;&nbsp;&nbsp;&nbsp;${esc(di || 'Tempat')}</p>`;
 const tembus = (t) => (lines(t).length ? `<p style="margin-top:22px;margin-bottom:0">Tembusan Yth.:</p>${ol(lines(t).map(esc))}` : '');
-const papanTable = (l, pes) => (l.papan === false || !(pes || []).length ? '' : `<p style="margin:10px 0 3px;text-align:left">Papan Peringkat Kompetisi pada Aplikasi Katalog Elektronik:</p><table class=b style="width:100%;margin:2px 0"><tr><th style="width:90px">Peringkat</th><th>Nama Penyedia</th><th style="width:30%">Total Penawaran</th></tr>${pes.map((x, i) => `<tr><td style="text-align:center">${esc(x.rank || i + 1)}</td><td>${esc(x.nama)}</td><td style="text-align:right">${rp(x.nilai)}</td></tr>`).join('')}</table><p style="font-size:10pt;margin:4px 0 10px"><i>Keterangan:</i> Peringkat otomatis ditentukan berdasarkan akumulasi nilai dari beberapa aspek seperti skor kandungan TKDN, harga, dan penawaran kompetisi di dalam Aplikasi Katalog Elektronik.</p>`);
+const papanTable = (l, pes, intro = true) => (l.papan === false || !(pes || []).length ? '' : `${intro ? '<p class=kn style="margin:10px 0 3px;text-align:left">Papan Peringkat Kompetisi pada Aplikasi Katalog Elektronik:</p>' : ''}<table class=b style="width:100%;margin:2px 0"><tr><th style="width:90px">Peringkat</th><th>Nama Penyedia</th><th style="width:30%">Total Penawaran</th></tr>${pes.map((x, i) => `<tr><td style="text-align:center">${esc(x.rank || i + 1)}</td><td>${esc(x.nama)}</td><td>${rpd(x.nilai)}</td></tr>`).join('')}</table><p style="font-size:10pt;margin:4px 0 10px"><i>Keterangan:</i> Peringkat otomatis ditentukan berdasarkan akumulasi nilai dari beberapa aspek seperti skor kandungan TKDN, harga, dan penawaran kompetisi di dalam Aplikasi Katalog Elektronik.</p>`);
+const rpd = (n) => (n ? 'Rp ' + Number(n).toLocaleString('id-ID') + ',-' : '......');
+const PB = '<div class=pgb></div>'; // pemisah halaman paksa (dipakai paginasi di pages.js)
+/* judul bertingkat gaya Word: nomor menggantung, tingkat 1 = A. / B., tingkat 2 = 1. / 2., tingkat 3 = a. / b. */
+const hl = (lv, no, t, bold) => `<p class="hl l${lv}${bold ? ' hb' : ''} kn"><span class=hn>${no}</span><span class=ht>${t}</span></p>`;
+const pesTableEval = (pes) => `<table class="b ev"><tr><th style="width:8%">No.</th><th style="width:27%">Nama Peserta Kompetisi</th><th style="width:24%">Nilai Penawaran</th><th style="width:16%">Hasil Evaluasi</th><th>Keterangan</th></tr>${(pes || []).map((x, i) => `<tr><td style="text-align:center">${i + 1}.</td><td>${esc(x.nama)}</td><td style="white-space:nowrap">${rpd(x.nilai)}</td><td style="text-align:center"><i>${esc(x.st)}</i></td><td style="text-align:justify">${esc(x.ket)}</td></tr>`).join('') || '<tr><td colspan=5 style="height:24px"></td></tr>'}</table>`;
 const pesTable = (pes, hps) => `<table class=b style="margin:6px 0"><tr><th style="width:32px">No</th><th>Nama Peserta</th><th>Nilai Penawaran</th><th>Hasil</th><th>Keterangan</th></tr>${pes.map((x, i) => `<tr><td style="text-align:center">${i + 1}</td><td>${esc(x.nama)}</td><td style="text-align:right">${rp(x.nilai)}${hps && x.nilai ? `<br><small>${((x.nilai / hps) * 100).toFixed(2).replace('.', ',')}% HPS</small>` : ''}</td><td style="text-align:center">${esc(x.st)}</td><td>${esc(x.ket)}</td></tr>`).join('') || '<tr><td colspan=5 style="height:24px"></td></tr>'}</table>`;
 const rowsPaket = (l, p, extra = []) => kv([['Nama Paket Kompetisi', esc(l.kegiatan || p.nama)], ['Nama Instansi/Satuan Kerja', esc(`${p.instansi || S().instansi} / ${p.satker || ''}`)], ['Nilai Pagu Anggaran', rupiahKata(num(p.pagu))], ['Nilai HPS', rupiahKata(num(p.hps))], ['Sumber Anggaran', esc(`${p.sumber || ''} Tahun Anggaran ${p.tahun || yr(l)}`)], ['Lokasi Pekerjaan/Pengiriman', esc(p.lokasi)], ['Jenis Mini Kompetisi', esc(l.jenisMK || `Mini Kompetisi Barang ${p.metode || 'Itemized'}`)], ...extra], 200);
 
@@ -335,20 +347,25 @@ const R = {
     <p>Demikian Berita Acara Perubahan Paket Kompetisi dibuat untuk dipergunakan sebagaimana mestinya.</p>${angTable(l, { title: 'Pokja Pemilihan ' + (l.kegiatan || p.nama), num: false })}`;
   },
   eval(l, p, v) {
-    const hps = num(p.hps), its = l.items || [], multi = its.length > 1;
+    const hps = num(p.hps), its = l.items || [], multi = its.length > 1, met = esc(p.metode || 'Itemized');
     const win = its.map((it) => winnerOf(it.pes, it.win)), tunjuk = (D.pokja.find((x) => x.id === l.akun) || angOf(l)[0]?.p || {}).nama || '......';
     const pemTxt = multi ? '' : win[0] ? `${esc(win[0].nama)} dengan nilai penawaran ${rp(win[0].nilai)}` : '......';
+    const nmIt = (it, i) => esc(it.nama || (multi ? `Item ${i + 1}` : p.nama));
+    const papan = its.map((it, i) => { const t = papanTable(l, it.pes, false); return t ? `${multi ? `<p class="kn in1" style="margin:8px 0 3px"><b>${nmIt(it, i)}</b></p>` : ''}${t}` : ''; }).join('');
     return `<p class=tc style="margin:0">BERITA ACARA HASIL EVALUASI<br>MINI KOMPETISI PADA PENGADAAN BARANG</p><p class=tc style="font-weight:400;margin-top:6px">Nomor: ${nomor(l)}</p>
-    <p>${esc(fill(tx('evalPembuka'), v))}</p>
-    ${kv([['Nama Paket', esc(p.nama)], ['Metode Pengadaan Mini Kompetisi', `<i>${esc(p.metode || 'Itemized')}</i>`], ['Nama Instansi/Satuan Kerja', esc(`${p.instansi || S().instansi}/${p.satker || ''}`)], ['Nilai Pagu Anggaran', rp(num(p.pagu))], ['Nilai Harga Perkiraan Sendiri (HPS)', rp(hps)], ['Sumber Anggaran', esc(p.sumber)], ['Lokasi Pekerjaan/Pengiriman', esc(p.lokasi)], ['Waktu Pelaksanaan Pekerjaan/ Tanggal Penyelesaian Pekerjaan', tgl(l.waktu || p.waktu)]], 250)}
-    <p>${esc(tx('evalIsi'))}</p>${its.map((it, i) => `${multi ? `<p style="margin-bottom:0"><b>Item ${i + 1}${it.nama ? ': ' + esc(it.nama) : ''}</b></p>` : ''}${papanTable(l, it.pes)}${pesTable(it.pes, multi ? 0 : hps)}`).join('')}
+    <p style="margin-top:16pt">${esc(fill(tx('evalPembuka'), v))}</p>
+    ${kv([['Nama Paket', esc(p.nama)], ['Metode Pengadaan Mini Kompetisi', `<i>${met}</i>`], ['Nama Instansi/Satuan Kerja', esc(`${p.instansi || S().instansi}/${p.satker || ''}`)], ['Nilai Pagu Anggaran', rpd(num(p.pagu))], ['Nilai Harga Perkiraan Sendiri (HPS)', rpd(hps)], ['Sumber Anggaran', esc(p.sumber)], ['Lokasi Pekerjaan/Pengiriman', esc(p.lokasi)], ['Waktu Pelaksanaan Pekerjaan/ Tanggal Penyelesaian Pekerjaan', tgl(l.waktu || p.waktu)]], 290)}
+    <p>${esc(tx('evalIsi'))}</p>
+    ${hl(1, 'A.', 'Papan Peringkat Kompetisi', 1)}<p class=in1>Hasil evaluasi terhadap calon pemenang Mini Kompetisi pada setiap indikator penilaian sesuai ketentuan yang berlaku mengacu pada data dan informasi yang tercantum dalam Papan Peringkat Kompetisi pada Aplikasi Katalog Elektronik.</p>${papan}
+    ${l.pisahA === false ? '' : PB}
+    ${hl(1, 'B.', 'Evaluasi', 1)}${hl(2, '1.', `Evaluasi dalam Mini Kompetisi <i>${met}</i> Barang`)}${its.map((it, i) => `${hl(3, String.fromCharCode(97 + i) + '.', nmIt(it, i))}${pesTableEval(it.pes)}`).join('')}
     <p>Berdasarkan proses evaluasi yang telah dilakukan, dengan ini Pokja Pemilihan menyatakan dan menyepakati sebagai berikut:</p>
     ${ol(['Pokja Pemilihan telah melakukan dan menyetujui hasil seluruh proses evaluasi kepada Pelaku Usaha/Penyedia di papan peringkat Mini Kompetisi pada Aplikasi Katalog Elektronik;',
-      `Berdasarkan hasil seluruh proses evaluasi sebagaimana tercantum di atas, Pokja Pemilihan menyepakati pemenang Pengadaan Barang pada Mini Kompetisi <i>${esc(p.metode || 'Itemized')}</i> yaitu ${multi ? '<br>' + its.map((it, i) => `${i + 1}) Item ${i + 1}${it.nama ? ' (' + esc(it.nama) + ')' : ''}: ${win[i] ? `${esc(win[i].nama)} dengan nilai penawaran ${rp(win[i].nilai)}` : '......'}`).join('<br>') : pemTxt}.`,
+      `Berdasarkan hasil seluruh proses evaluasi sebagaimana tercantum di atas, Pokja Pemilihan menyepakati pemenang Pengadaan Barang pada Mini Kompetisi <i>${met}</i> yaitu ${multi ? '<br>' + its.map((it, i) => `${i + 1}) ${nmIt(it, i)}: ${win[i] ? `${esc(win[i].nama)} dengan nilai penawaran ${rp(win[i].nilai)}` : '......'}`).join('<br>') : pemTxt}.`,
       `Pokja Pemilihan menunjuk dan melimpahkan kewenangan kepada Pokja ${esc(tunjuk)} untuk melakukan proses Mini Kompetisi pada Aplikasi Katalog Elektronik. Namun, tidak melepaskan segala keputusan dan tanggung jawab setiap anggota Pokja Pemilihan.`,
       'Segala keputusan dan tindakan yang disepakati oleh seluruh anggota Pokja Pemilihan pada proses evaluasi sebagaimana diatur di dalam Berita Acara ini merupakan kesepakatan bersama yang sah.',
       'Apabila terdapat perbedaan antara Berita Acara ini dengan hasil dalam Aplikasi Katalog Elektronik, maka yang digunakan adalah informasi dan keputusan yang terdapat dalam Aplikasi Katalog Elektronik. Dalam hal tersebut, maka dokumen berita acara ini dapat disesuaikan.'])}
-    <p>Demikian Berita Acara Hasil Evaluasi Mini Kompetisi dibuat untuk dipergunakan sebagaimana mestinya.</p>${angTable(l)}`;
+    <p class=kn>Demikian Berita Acara Hasil Evaluasi Mini Kompetisi dibuat untuk dipergunakan sebagaimana mestinya.</p>${angTable(l)}`;
   },
   batal(l, p, v) {
     const al = listID(l.alasanSel || []) + (l.alasanTxt ? ((l.alasanSel || []).length ? '; ' : '') + l.alasanTxt : ''), nm = l.kegiatan || p.nama;
@@ -378,15 +395,6 @@ const R = {
     <p>${esc(gv(l, 'penutup'))}</p>
     <p style="margin:18px 0 4px;font-weight:400;text-align:left;break-after:avoid">${esc(l.lap1 || S().lap1)}<br>${esc(l.lap2 || S().lap2)}</p><table class=b style="break-inside:avoid;width:100%"><tr><th style="width:34px">No</th><th>Nama</th><th style="width:36%">Tanda Tangan</th></tr>${angOf(l).map((a, i) => `<tr><td style="text-align:center">${i + 1}.</td><td>${esc(a.p.nama)}${a.p.nip ? `<br>NIP ${esc(a.p.nip)}` : ''}</td><td style="height:62px;text-align:center;vertical-align:middle">${sigCell(a)}</td></tr>`).join('')}</table>${tembus(gv(l, 'tembusan'))}`;
   },
-  kk(l, p) {
-    const U1 = (x) => esc(String(x || '').toUpperCase()), r = (a, b, c, d) => `<tr><td><b>${a}</b></td><td>${b}</td><td>${c}</td><td>${d}</td></tr>`;
-    const prods = (l.prods || []).map((q, i) => { const jml = num(q.jml), hps = num(q.hps), tot = num(q.tot), th = jml * hps, n = (x) => Number(x).toLocaleString('id-ID');
-      return `<table class="b kk" style="margin-top:12px"><tr><th colspan=4 style="text-align:left;background:#e5e5e5">PRODUK ${i + 1}</th></tr><tr><th style="width:21%">KETERANGAN</th><th style="width:32%">KUALIFIKASI</th><th style="width:32%">EVALUASI</th><th>KETERANGAN</th></tr>${(q.rows || []).map((x) => r(esc(x.l), nl(x.k), nl(x.e), nl(x.n))).join('')}${r('Jumlah', n(jml), n(jml), '')}${r('Satuan', esc(q.sat), esc(q.sat), '')}${r('HPS Produk', rp(hps), jml ? rp(Math.round(tot / jml)) : '......', '')}${r('Total HPS Produk', rp(th), rp(tot), '')}${r('Persentase dengan HPS Produk', '', th ? ((tot / th) * 100).toFixed(2).replace('.', ',') + '%' : '......', '')}</table>`; }).join('');
-    return `${kop()}<p class=tc style="margin:0">LEMBAR KERJA EVALUASI KUALIFIKASI, ADMINISTRASI, TEKNIS DAN HARGA</p><p class=tc style="margin:0">${U1(p.nama)}</p><p class=tc style="margin:0 0 14px">SATUAN KERJA ${U1(p.satker)}</p>
-    ${kv([['Nama Perusahaan', esc(l.pNama)], ['NPWP', esc(l.pNpwp)], ['No. Telepon', esc(l.pTelp)], ['Email', esc(l.pEmail)], ['Alamat', esc(l.pAlamat)]], 150)}${prods}
-    <table class=b style="margin-top:12px;break-inside:avoid"><tr><th style="text-align:left">Apabila Tidak Memenuhi Syarat — ALASAN TOLAK</th></tr><tr><td style="height:40px">${nl(l.alasan)}</td></tr></table>
-    <div style="break-inside:avoid;margin-top:18px"><p style="margin:0">${esc(l.kota)}, ${tgl(l.tgl)}</p><p style="margin:0 0 6px">Pokja Pemilihan Barang/Jasa<br>${esc(S().lap2)} - ${esc(S().instansi)}</p><table class=k>${angOf(l).map((a, i) => `<tr><td style="width:24px">${i + 1}</td><td style="width:230px">${esc(a.nama)}</td><td style="width:180px;text-align:center;height:46px;vertical-align:bottom">${a.ttd ? `<img src="${a.ttd}" style="max-height:44px;max-width:150px;display:block;margin:0 auto">` : ''}<div style="border-top:1px dotted #000"></div></td></tr>`).join('')}</table></div>`;
-  },
   dmk(l, p, v) {
     let k = 1, open = false, o = '';
     const close = () => { if (open) { o += '</ol>'; open = false; } };
@@ -398,9 +406,9 @@ const R = {
       else { close(); o += `<p>${esc(t)}</p>`; }
     }
     close();
-    return `<div class=pb style="min-height:243mm;display:flex;flex-direction:column"><p class=tc style="font-size:16pt;margin:130px 0 0">DOKUMEN MINI KOMPETISI</p><p class=tc style="font-size:13pt;margin-top:2px">E-PURCHASING KATALOG ELEKTRONIK</p>
+    return `<div class=cover style="height:250mm;display:flex;flex-direction:column"><p class=tc style="font-size:16pt;margin:130px 0 0">DOKUMEN MINI KOMPETISI</p><p class=tc style="font-size:13pt;margin-top:2px">E-PURCHASING KATALOG ELEKTRONIK</p>
     <div style="margin-top:80px">${kv([['Nama Kegiatan', esc(p.nama)], ['Jumlah Paket', '1 (satu) paket'], ['Satuan Kerja', esc(p.satker)], ['Sumber Dana', esc(p.sumber)], ['Jenis Pengadaan', esc(p.jenis || 'Barang')], ['Tahun Anggaran', esc(p.tahun || yr(l))]], 150)}</div>
-    <div style="margin-top:auto;padding-bottom:12px"><p class=tc style="font-size:16pt;margin:0">KEMENTERIAN PERTANIAN</p><p class=tc style="font-size:13pt;margin:2px 0 0">TAHUN ${esc(p.tahun || yr(l))}</p></div></div>
+    <div style="margin-top:auto;padding-bottom:12px"><p class=tc style="font-size:16pt;margin:0">KEMENTERIAN PERTANIAN</p><p class=tc style="font-size:13pt;margin:2px 0 0">TAHUN ${esc(p.tahun || yr(l))}</p></div></div>${PB}
     <h4>I.&nbsp; PENDAHULUAN</h4><p>Dokumen ini memuat dokumen persiapan pengadaan dan ketentuan pelaksanaan E-purchasing Katalog Elektronik melalui metode Mini Kompetisi untuk paket Barang sebagaimana tercantum dalam Daftar Paket pada Bab IV huruf A. Penyedia Katalog wajib mempelajari dokumen ini bersama Kerangka Acuan Kerja (KAK)/Spesifikasi Teknis dan Rancangan Surat Pesanan sebelum menyampaikan penawaran. Dengan menyampaikan penawaran, Penyedia Katalog dianggap telah memahami dan menyetujui seluruh ketentuan dalam dokumen ini.</p>
     <h4>II.&nbsp; DASAR HUKUM</h4>${ol(lines(tx('dmkDasar')).map(esc))}
     <h4>III.&nbsp; DOKUMEN PERSIAPAN PENGADAAN</h4><p style="margin-bottom:0">Dokumen persiapan pengadaan untuk paket terdiri atas:</p>${ol(['Kerangka Acuan Kerja (KAK)/Spesifikasi Teknis;', 'Rancangan Surat Pesanan beserta Syarat-Syarat Umum Kontrak (SSUK) dan Syarat-Syarat Khusus Kontrak (SSKK);', 'Berita Acara Hasil Reviu Dokumen Persiapan Pengadaan antara Pokja Pemilihan dan PPK.'])}<p>Dokumen sebagaimana dimaksud di atas merupakan bagian yang tidak terpisahkan dari Dokumen Mini Kompetisi ini.</p>
@@ -413,7 +421,7 @@ function renderLetter(l) {
   norm(l); const p = paketOf(l);
   if (!p) return '<p style="padding:40px;text-align:center;color:#888">Pilih atau buat paket dulu (Pengaturan › Paket).</p>';
   const body = R[l.tpl](l, p, vars(l));
-  return l.tpl === 'dmk' || l.tpl === 'kk' ? body : kop() + body;
+  return l.tpl === 'dmk' ? body : kop() + body;
 }
 function judul(l) { const p = paketOf(l) || {}, h = ['reviu', 'bukti', 'lap'].includes(l.tpl) ? gv(l, 'hal') : `${TPL[l.tpl].n} ${p.nama || ''}`; return `${(l.tgl || '').replace(/-/g, '')} ${h}`.replace(/[\\/:*?"<>|]/g, '-'); }
 
@@ -487,7 +495,7 @@ const FB = {
     return `<section class=sec>${fx('waktu', 'Waktu pelaksanaan / tgl. penyelesaian', { t: 'date', val: p.waktu || '' })}</section>`
       + sec(2, 'Peserta & hasil evaluasi', L.items.map((it, k) => `${L.items.length > 1 ? `<div class=r1><b>Item ${k + 1}</b><input data-p="items.${k}.nama" value="${esc(it.nama)}" placeholder="Nama item/produk"><button class=ib data-act="itr:${k}">×</button></div>` : ''}<textarea class=paste data-paste="items.${k}.pes" placeholder="Tempel papan peringkat dari katalog untuk mengganti (Ctrl+V)"></textarea>${pesEd(`items.${k}.pes`, `items.${k}.win`)}`).join('') + '<p><a data-act=ita>+ Tambah item (mini kompetisi itemized dengan beberapa produk)</a></p><p class=muted>Urutkan sesuai papan peringkat. Nilai boleh ditulis bebas, mis. 544635000 atau Rp544.635.000,00.</p>')
       + sec(3, 'Nomor & tanggal', numBox('Tanggal BA'))
-      + more('Lainnya — anggota Pokja & tanda tangan, pemegang akun katalog', `${angPanel()}<div class=fld><label>Pokja pemegang akun katalog</label><select data-k=akun>${L.angs.map((a) => { const q = D.pokja.find((x) => x.id === a.id); return q ? `<option value="${q.id}" ${q.id === L.akun ? 'selected' : ''}>${esc(q.nama)}</option>` : ''; }).join('')}</select></div>${kertasBln()}`);
+      + more('Lainnya — anggota Pokja & tanda tangan, pemegang akun katalog', `${angPanel()}<div class=fld><label>Pokja pemegang akun katalog</label><select data-k=akun>${L.angs.map((a) => { const q = D.pokja.find((x) => x.id === a.id); return q ? `<option value="${q.id}" ${q.id === L.akun ? 'selected' : ''}>${esc(q.nama)}</option>` : ''; }).join('')}</select></div>${chk('pisahA', 'Bagian B (Evaluasi) mulai di halaman baru', true)}${kertasBln()}`);
   },
   batal() {
     return `<section class=sec>${fx('kegiatan', 'Nama Pokja / kegiatan (kosong = nama paket)', { area: 1, ph: (paketOf(L) || {}).nama })}</section>`
@@ -504,12 +512,11 @@ const FB = {
       + more('Lainnya — rujukan BA, teks laporan, perihal, tembusan, anggota Pokja', `<div class=g3>${fx('baNo', 'Nomor BA (timpa)', { ph: x.baNo })}${fx('baTgl', 'Tanggal BA (timpa)', { t: 'date' })}${fx('tglBukti', 'Tanggal pembuktian (timpa)', { t: 'date' })}</div>${ovf('dasar', 'A. Dasar pelaksanaan', 4)}${ovf('pel', 'Pelaksanaan pemilihan', 5)}<div class=g2>${fx('xj', 'Bagian tambahan — judul (opsional)')}${fx('xi', 'Bagian tambahan — isi (satu butir per baris)', { area: 1 })}</div>${ovf('tindak', 'Tindak lanjut (satu butir per baris)', 4)}${fx('docsLap', 'Dokumen yang disampaikan (satu per baris, kosong = otomatis)', { area: 1 })}${ovf('penutup', 'Paragraf penutup', 3)}${chk('dataPaket', 'Tampilkan tabel “Data Paket” di laporan', true)}${ovf('hal', 'Perihal')}${ovf('tembusan', 'Tembusan (satu per baris)', 3)}<label>Anggota Pokja</label><div class=g2>${fx('lap1', 'Baris 1 di atas tabel TTD', { val: S().lap1 })}${fx('lap2', 'Baris 2', { val: S().lap2 })}</div>${angPanel()}<div class=g2>${fx('lamp', 'Lampiran', { val: '1 (satu) bendel' })}${fx('kota', 'Kota')}</div>${kertasBln()}`);
   },
   dmk() { return sec(2, 'Kategori produk', `${fx('kat1', 'Kategori Tingkat I')}${fx('kat2', 'Kategori Tingkat II')}${fx('kat3', 'Kategori Tingkat III')}`) + sec(3, 'Tanggal dokumen', `<div class=g2>${fx('tgl', 'Tanggal', { t: 'date' })}${fx('kota', 'Kota')}</div>`); },
-  kk() { return sec(2, 'Isian kertas kerja', kkForm()) + sec(3, 'Tanggal & anggota', `<div class=g2>${fx('tgl', 'Tanggal', { t: 'date' })}${fx('kota', 'Kota')}</div>${angPanel()}`); },
 };
 const datalists = () => `<datalist id=jamdl>${['08.00', '09.00', '10.00', '13.00', '13.30', '14.00', '15.00'].map((x) => `<option value="${x}">`).join('')}</datalist>`;
 function suratView() {
   L ||= newLetter('reviu'); norm(L);
-  $('#main').innerHTML = '<div class=wrap><div class="form noprint" id=fm></div><div class=prev><div class="pvh noprint"><span>Pratinjau sama dengan hasil unduhan</span><span id=pgc></span></div><div class=sheet id=sh></div></div></div><style id=pg></style>';
+  $('#main').innerHTML = '<div class=wrap><div class="form noprint" id=fm></div><div class=prev><div class="pvh noprint"><span>Pratinjau sama dengan hasil unduhan</span><span id=pgc></span></div><div class=pages id=sh></div></div></div><style id=pg></style>';
   form(); prev();
   if (!window._kb) { window._kb = 1; addEventListener('keydown', (e) => { if (view !== 'surat' || !L) return; if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); doPdf(); } if (e.ctrlKey && e.key.toLowerCase() === 's') { e.preventDefault(); saveL(); setSt('Surat disimpan'); } }); addEventListener('resize', () => view === 'surat' && $('#sh') && prev()); }
 }
@@ -536,7 +543,6 @@ function wire() {
     if (d.k) { L[d.k] = x.type === 'checkbox' ? x.checked : x.type === 'number' ? (x.value === '' ? '' : +x.value) : x.value; if (d.k === 'tindak') { /* teks bebas */ } }
     else if (d.ov) { L.o[d.ov] = x.value; const b = f.querySelector(`[data-bd=${d.ov}]`); if (b) { b.textContent = 'Diubah manual'; b.classList.add('m'); if (!b.parentElement.querySelector('[data-rev]')) b.parentElement.insertAdjacentHTML('beforeend', ` <a data-rev="${d.ov}">Kembalikan</a>`); } }
     else if (d.p) setP(L, d.p, x.value);
-    else if (d.kk) { const [i, j, k] = d.kk.split('.'), P = L.prods[+i]; j === 'h' ? (P[k] = x.value) : (P.rows[+j][k] = x.value); }
     else if (d.ang !== undefined) L.angs[+d.ang].ttd = x.checked;
     else if (d.pen) { L.pen = { ...(L.pen || {}), [d.pen]: x.checked }; }
     else if (x.id === 'angq') { if (e.type !== 'change') return; const q = x.value.trim().toLowerCase(), p = D.pokja.find((p) => !L.angs.some((a) => a.id === p.id) && (p.nama.toLowerCase() === q || (p.nip && p.nip === q))); if (p) { L.angs.push({ id: p.id, ttd: true }); rr(); } return; }
@@ -548,14 +554,13 @@ function wire() {
   };
   f.onpaste = (e) => { const x = e.target; if (!x.dataset.paste) return; e.preventDefault(); const rows = parsePaste(e.clipboardData.getData('text')); if (rows.length) { setP(L, x.dataset.paste, rows); rr(); } };
   f.onclick = (e) => {
-    const x = e.target.closest('[data-act],[data-ch],[data-seg],[data-q],[data-rev],[data-go],[data-fz],[data-x]'); if (!x) return; const d = x.dataset, cut = (s) => { const i = s.indexOf(':'); return [s.slice(0, i), s.slice(i + 1)]; };
+    const x = e.target.closest('[data-act],[data-ch],[data-seg],[data-q],[data-rev],[data-go],[data-fz]'); if (!x) return; const d = x.dataset, cut = (s) => { const i = s.indexOf(':'); return [s.slice(0, i), s.slice(i + 1)]; };
     if (d.ch) { const [k, v] = cut(d.ch); if (k === 'tindakPilih') { L.tindak = v; rr(); return; } const a = (L[k] ||= []), j = a.indexOf(v); j < 0 ? a.push(v) : a.splice(j, 1); rr(); return; }
     if (d.seg) { const [k, v] = cut(d.seg); L[k] = v; rr(); return; }
     if (d.q) { const i = d.q.indexOf('='); L[d.q.slice(0, i)] = d.q.slice(i + 1); rr(); return; }
     if (d.rev) { delete L.o[d.rev]; rr(); return; }
     if (d.go) { saveL(); tab = d.go; view = 'set'; shell(); return; }
     if (d.fz) { const el = f.querySelector(d.fz); if (el) { el.scrollIntoView({ block: 'center' }); el.focus && el.focus(); } return; }
-    if (d.x) { const [c, v] = cut(d.x), [i, j] = String(v).split('.').map(Number); if (d.x === 'ap') L.prods.push(defProd()); else if (c === 'dp') L.prods.splice(i, 1); else if (c === 'ar') L.prods[i].rows.push({ l: '', k: '', e: '', n: '' }); else if (c === 'dr') L.prods[i].rows.splice(j, 1); rr(); return; }
     const [c, v] = cut(d.act + ':'), a = v.replace(/:$/, '');
     if (c === 'zoom') UI.zoom = !UI.zoom;
     else if (c === 'pre') { const q = PRE[+a]; L.docs = [...q[1]]; L.konsol = q[2]; }
@@ -585,21 +590,12 @@ function saveL() {
   dirty();
 }
 function prev() {
-  const k = L.kertas || S().kertas, land = L.tpl === 'lk', pw = (k === 'F4' ? '215mm 330mm' : k === 'Letter' ? 'letter' : 'A4') + (land ? ' landscape' : ''), m = '20mm 20mm 20mm 25mm';
-  $('#pg').textContent = `@page{size:${pw};margin:${m}}@page lap{size:${pw};margin:${m};@bottom-right{content:"Hal. " counter(page);font:11pt Arial}}@page lap:first{@bottom-right{content:none}}`;
-  const sh = $('#sh'), pane = $('.prev'); sh.className = 'sheet ' + L.tpl; sh.innerHTML = renderLetter(L);
-  const z = Math.max(0.4, Math.min(1.3, (pane.clientWidth - 20) / (land ? 1123 : 794))); sh.style.zoom = z; sh.style.minHeight = '0';
-  const h0 = sh.getBoundingClientRect().height / z; sh.style.minHeight = '';
-  const h = h0 - 38 * 3.78, per = ((land ? 210 : k === 'F4' ? 330 : 297) - 40) * 3.78;
-  $('#pgc').textContent = `≈ ${Math.max(1, Math.ceil(h / per))} halaman · ${k}`;
-}
-function kkForm() {
-  const h = (i, k, l) => `<div><label>${l}</label><input data-kk="${i}.h.${k}" value="${esc(L.prods[i][k])}"></div>`;
-  return `<div class=g2>${[['pNama', 'Nama perusahaan'], ['pNpwp', 'NPWP'], ['pTelp', 'No. telepon'], ['pEmail', 'Email']].map((f) => fh(L, f)).join('')}</div>${fh(L, ['pAlamat', 'Alamat', 'area'])}
-  ${L.prods.map((p, i) => `<div class=panel style="padding:12px"><div class=row style="border:0;padding:0"><b style="flex:1">Produk ${i + 1}</b>${L.prods.length > 1 ? `<button class="btn s" data-x="dp:${i}">Hapus produk</button>` : ''}</div>
-  <table class=kt><tr><th>Keterangan</th><th>Kualifikasi</th><th>Evaluasi</th><th>Ket.</th><th></th></tr>${p.rows.map((r, j) => `<tr><td><input data-kk="${i}.${j}.l" value="${esc(r.l)}"></td><td><textarea data-kk="${i}.${j}.k">${esc(r.k)}</textarea></td><td><textarea data-kk="${i}.${j}.e">${esc(r.e)}</textarea></td><td><textarea data-kk="${i}.${j}.n">${esc(r.n)}</textarea></td><td><button class="btn s" data-x="dr:${i}.${j}">×</button></td></tr>`).join('')}</table>
-  <p><button class="btn s" data-x="ar:${i}">+ Tambah baris</button></p><div class=g2>${h(i, 'jml', 'Jumlah')}${h(i, 'sat', 'Satuan')}${h(i, 'hps', 'HPS produk per satuan (angka)')}${h(i, 'tot', 'Total penawaran peserta (angka)')}</div></div>`).join('')}
-  <p><button class=btn data-x=ap>+ Tambah produk</button></p>${fh(L, ['alasan', 'Alasan tolak (bila tidak memenuhi syarat)', 'area'])}`;
+  const k = L.kertas || S().kertas, [pw, ph] = PGZ[k] || PGZ.A4;
+  $('#pg').textContent = `@page{size:${pw}mm ${ph}mm;margin:0}`; // margin ada di dalam tiap halaman (lihat pages.js)
+  const sh = $('#sh'), pane = $('.prev'); sh.className = 'pages ' + L.tpl;
+  const n = fillPages(sh, L);
+  sh.style.zoom = Math.max(0.4, Math.min(1.3, (pane.clientWidth - 24) / (pw * 3.7795)));
+  $('#pgc').textContent = `${n} halaman · ${k}`;
 }
 
 /* ===== layar Pengaturan ===== */
@@ -666,7 +662,7 @@ async function pRef(el) {
 function pCad(el) {
   el.innerHTML = `<div class=card><h3>Cadangan</h3><p class=muted>Unduh cadangan semua data (.json) secara berkala dan simpan di Drive.</p><button class=btn id=dl>Unduh cadangan semua data (.json)</button> <label class=btn style="display:inline-block;margin:0">Pulihkan dari file<input type=file accept=.json id=rs hidden></label></div>`;
   $('#dl').onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(D)], { type: 'application/json' })); a.download = `cadangan-dokumen-pokja-${today()}.json`; a.click(); };
-  $('#rs').onchange = async (e) => { try { const j = JSON.parse(await e.target.files[0].text()); if (!j.set || !j.pokja || !j.paket) throw 0; if (!confirm('Timpa semua data saat ini dengan isi cadangan?')) return; D = { ...DEF(), ...j }; await persist(true); alert('Data dipulihkan.'); } catch { alert('File cadangan tidak valid.'); } };
+  $('#rs').onchange = async (e) => { try { const j = JSON.parse(await e.target.files[0].text()); if (!j.set || !j.pokja || !j.paket) throw 0; if (!confirm('Timpa semua data saat ini dengan isi cadangan?')) return; D = { ...DEF(), ...j }; purgeObs(); await persist(true); alert('Data dipulihkan.'); } catch { alert('File cadangan tidak valid.'); } };
 }
 
 /* ===== monitoring progres ===== */

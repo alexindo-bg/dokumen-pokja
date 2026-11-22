@@ -177,7 +177,7 @@ function rvScan(T, p) {
 
 /* ---------- BA Reviu Dokumen Persiapan ---------- */
 TPL.bareviu = { n: 'BA reviu dokumen persiapan (pemindai)', d: 'Pindai kesesuaian Permintaan Pemilihan Penyedia, KAK, HPS, SSUK, SSKK; hasilnya menjadi BA Reviu berisi temuan dan koreksi.', i: '🔎' };
-{ const old = { ...TPL }, ord = ['reviu', 'bareviu', 'dmk', 'ubah', 'eval', 'batal', 'nego', 'bukti', 'lap', 'kk'].filter((k) => old[k]); Object.keys(TPL).forEach((k) => delete TPL[k]); ord.forEach((k) => (TPL[k] = old[k])); KEYS.length = 0; KEYS.push(...ord); }
+{ const old = { ...TPL }, ord = ['reviu', 'bareviu', 'dmk', 'ubah', 'eval', 'batal', 'nego', 'bukti', 'lap'].filter((k) => old[k]); Object.keys(TPL).forEach((k) => delete TPL[k]); ord.forEach((k) => (TPL[k] = old[k])); KEYS.length = 0; KEYS.push(...ord); }
 const rvOn = (l) => (l.rvTemuan || []).filter((x) => x.on !== false && (x.uraian || '').trim());
 const SEVL = { tinggi: 'Tinggi', sedang: 'Sedang', rendah: 'Rendah' };
 R.bareviu = function (l, p) {

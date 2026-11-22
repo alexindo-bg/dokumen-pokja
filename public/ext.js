@@ -335,7 +335,7 @@ FB.nego = function () {
 };
 TPL.nego = { n: 'BA kesepakatan negosiasi harga', d: 'Berita acara hasil evaluasi kesepakatan negosiasi harga (produk, harga tayang vs negosiasi, PPN, nilai akhir).', i: '⚖' };
 { // urutan menu mengikuti alur kerja
-  const ord = ['reviu', 'dmk', 'ubah', 'eval', 'batal', 'nego', 'bukti', 'lap', 'kk'], old = { ...TPL };
+  const ord = ['reviu', 'dmk', 'ubah', 'eval', 'batal', 'nego', 'bukti', 'lap'], old = { ...TPL };
   Object.keys(TPL).forEach((k) => delete TPL[k]); ord.forEach((k) => (TPL[k] = old[k])); KEYS.length = 0; KEYS.push(...ord);
 }
 
@@ -410,8 +410,8 @@ const _rl0 = renderLetter;
 renderLetter = function (l) {
   let h = _rl0(l);
   if (['eval', 'batal', 'ubah', 'nego'].includes(l.tpl)) {
-    if (l.tambah) h = h.replace('<p>Demikian', `<p>${nl(l.tambah)}</p><p>Demikian`);
-    if (l.penutupBA) h = h.replace(/<p>Demikian[^<]*<\/p>/, `<p>${esc(l.penutupBA)}</p>`);
+    if (l.tambah) h = h.replace(/<p( class=kn)?>Demikian/, `<p>${nl(l.tambah)}</p><p$1>Demikian`);
+    if (l.penutupBA) h = h.replace(/<p( class=kn)?>Demikian[^<]*<\/p>/, `<p$1>${esc(l.penutupBA)}</p>`);
   }
   return h;
 };
