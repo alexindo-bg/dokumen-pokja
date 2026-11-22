@@ -345,10 +345,10 @@ R.ubah = function (l, p) {
   const rows = (l.items || []).map((x, i) => {
     let a, b;
     if (x.t === 'tayang') {
-      a = `Batas akhir masa tayang (batas akhir pemasukan penawaran) Paket Kompetisi pada Katalog Elektronik INAPROC:<br><br><b>${dtm2(x.semula)}</b>`;
-      b = `Batas akhir masa tayang (batas akhir pemasukan penawaran) Paket Kompetisi pada Katalog Elektronik INAPROC diperpanjang menjadi:<br><br><b>${dtm2(x.baru)}</b>`;
+      a = `Batas akhir masa tayang (batas akhir pemasukan penawaran) Paket Kompetisi pada Katalog Elektronik INAPROC:<br><br>${dtm2(x.semula)}`;
+      b = `Batas akhir masa tayang (batas akhir pemasukan penawaran) Paket Kompetisi pada Katalog Elektronik INAPROC diperpanjang menjadi:<br><br>${dtm2(x.baru)}`;
     } else { const lab = x.komp ? `<b>${esc(x.komp)}</b><br>` : ''; a = lab + nl(x.semula || ''); b = lab + nl(x.baru || x.uraian || ''); }
-    return `<tr><td style="text-align:left">${i + 1}.</td><td>${a}</td><td>${b}</td></tr>`;
+    return `<tr><td style="text-align:left">${i + 1}.</td><td style="text-align:justify">${a}</td><td style="text-align:justify">${b}</td></tr>`;
   }).join('');
   return `<p class=tc style="margin:0">BERITA ACARA PERUBAHAN PAKET KOMPETISI BARANG</p><p class=tc style="font-weight:400;margin-top:4px">Nomor: ${nomor(l)}</p>
   <p>Pada hari ini ${kataTgl(l.tgl)}, kami Kelompok Kerja (Pokja) Pemilihan ${esc(nm)} UKPBJ ${esc(p.instansi || S().instansi)} yang ditetapkan berdasarkan Surat Tugas ${esc(p.pejabatST || S().pejabat)} Nomor: ${esc(p.stNo)} tanggal ${tgl(p.stTgl)} melaksanakan proses <i>E-Purchasing</i> menggunakan metode Mini-Kompetisi untuk paket Kompetisi sebagai berikut:</p>
@@ -357,7 +357,7 @@ R.ubah = function (l, p) {
   <table class=b style="margin:6px 0"><tr><th style="width:44px">No.</th><th>Semula</th><th>Perubahan</th></tr>${rows || '<tr><td colspan=3 style="height:26px"></td></tr>'}</table>
   <p>Perubahan Paket Kompetisi yang dilakukan oleh Pokja Pemilihan ${esc(nm)} mengacu pada ketentuan yang diatur pada Keputusan Kepala LKPP Nomor 93 Tahun 2025 dan/atau ketentuan yang berlaku. Setelah perubahan Paket Kompetisi disimpan, aplikasi Katalog Elektronik memperbarui Paket Kompetisi sesuai dengan informasi yang telah diubah oleh Pokja Pemilihan.</p>
   <p>Segala keputusan dan tindakan yang disepakati oleh seluruh anggota Kelompok Kerja (Pokja) Pemilihan pada proses Perubahan Paket Kompetisi sebagaimana diatur di dalam Berita Acara ini merupakan kesepakatan bersama yang sah.</p>
-  <p>Demikian Berita Acara Perubahan Paket Kompetisi dibuat untuk dipergunakan sebagaimana mestinya.</p>${angTable(l, { title: 'Pokja Pemilihan ' + nm, num: false })}`;
+  <p>Demikian Berita Acara Perubahan Paket Kompetisi dibuat untuk dipergunakan sebagaimana mestinya.</p>${angTable(l, { title: 'Pokja Pemilihan ' + nm, num: false, plain: true })}`;
 };
 FB.ubah = function () {
   const it = (x, i) => `<div class=card2><div class=r1><span class=n>${i + 1}</span><div class=seg>${[['tayang', 'Perpanjangan masa tayang'], ['lain', 'Perubahan lain']].map(([t, n]) => `<a class="${x.t === t ? 'on' : ''}" data-act="ubt:${i}|${t}">${n}</a>`).join('')}</div><button class=ib data-act="ubr:${i}">×</button></div>${x.t === 'tayang'

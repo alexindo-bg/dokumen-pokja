@@ -9,10 +9,10 @@
   Object.assign(KELENGKAPAN, { kak: [], kontrak: [['para pihak', 'pihak'], ['nilai', 'harga'], ['pembayaran'], ['denda', 'sanksi']], anggaran: [['dipa', 'dpa', 'rka']], rup: [['rup'], ['pagu']], pasar: [['penyedia']] });
 }
 const RVG = [
-  { id: 'kak', judul: 'Reviu terhadap Spesifikasi Teknis/Kerangka Acuan Kerja (KAK) untuk Pengadaan Barang', items: [
+  { id: 'kak', judul: 'Reviu terhadap Spesifikasi Teknis/Gambar/Kerangka Acuan Kerja (KAK) untuk Barang', items: [
     { no: 1, docs: ['kak'], uraian: 'Memeriksa apakah:\n- Spesifikasi teknis;\n- gambaran umum;\n- Kerangka Acuan Kerja (KAK)\nsudah dituangkan secara lengkap dan jelas sehingga memungkinkan bagi peserta untuk memahami dan mampu menyusun penawaran dengan baik.' },
     { no: 2, docs: ['kak'], uraian: 'Memeriksa ruang lingkup pekerjaan sudah dituangkan dengan jelas dan rinci.' },
-    { no: 3, docs: ['kak', 'ppp'], uraian: 'Memeriksa apakah Spesifikasi Teknis/ Gambar/KAK/DED telah menguraikan hal-hal sebagai berikut, antara lain:\n- Kesesuaian spesifikasi teknis dan/atau gambar dengan kebutuhan;\n- Karakteristik: ukuran, dimensi, bentuk, bahan, warna, komposisi, dan lain lain;\n- Kinerja: ketahanan, efisiensi, batas pemakaian, dan lain lain;\n- Barang/jasa merupakan barang produksi dalam negeri yang dibuktikan dengan adanya kandungan Tingkat Komponen Dalam Negeri (TKDN) sesuai dengan ketentuan yang berlaku;\n- Barang/jasa merupakan produk yang diproduksi oleh usaha mikro dan kecil serta koperasi;\n- Standar atas barang/jasa yang digunakan seperti SNI, JIS, ASTM, ISO, produk ramah lingkungan dan lain lain;\n- Validitas: standar yang digunakan sudah tepat dan sesuai;\n- Pengepakan dan cara pengiriman disesuaikan dengan sifat dan/atau jenis barang;\n- Jangka waktu pelaksanaan harus sesuai dengan metode pelaksanaan;\n- Mencantumkan syarat-syarat bahan yang dipergunakan dalam pelaksanaan pekerjaan;\n- Mencantumkan syarat-syarat pengujian bahan dan hasil produk;\n- Mencantumkan kriteria kinerja produk (output performance) yang diinginkan; atau\n- Mencantumkan tata cara pengukuran dan tata cara pembayaran.' },
+    { no: 3, docs: ['kak', 'ppp'], uraian: 'Memeriksa apakah Spesifikasi Teknis/ Gambar/KAK/DED telah menguraikan hal-hal sebagai berikut, antara lain:\n- Kesesuaian spesifikasi teknis dan/atau gambar dengan kebutuhan;\n- Karakteristik: ukuran, dimensi, bentuk, bahan, warna, komposisi, dan lain lain;\n- Kinerja: ketahanan, efisiensi, batas pemakaian, dan lain lain;\n- Barang/jasa merupakan barang produksi dalam negeri yang dibuktikan dengan adanya kandungan Tingkat Komponen Dalam Negeri (TKDN) sesuai dengan ketentuan yang berlaku;\n- Barang/jasa merupakan produk yang diproduksi oleh usaha mikro dan kecil serta koperasi;\n- Standar atas barang/jasa yang digunakan seperti SNI, JIS, ASTM, ISO, produk ramah lingkungan dan lain lain;\n- Validitas: standar yang digunakan sudah tepat dan sesuai;\n- Pengepakan dan cara pengiriman disesuaikan dengan sifat dan/atau jenis barang;\n- Untuk pekerjaan konstruksi, metode pelaksanaan harus logis, realistis dan dapat dilaksanakan;\n- Jangka waktu pelaksanaan harus sesuai dengan metode pelaksanaan;\n- Mencantumkan macam, jenis, kapasitas dan jumlah peralatan utama minimal yang diperlukan dalam pelaksanaan pekerjaan;\n- Mencantumkan syarat-syarat bahan yang dipergunakan dalam pelaksanaan pekerjaan;\n- Mencantumkan syarat-syarat pengujian bahan dan hasil produk;\n- Mencantumkan kriteria kinerja produk (output performance) yang diinginkan; atau\n- Mencantumkan tata cara pengukuran dan tata cara pembayaran.\n(uraian dapat dilakukan penyesuaian berdasarkan kebutuhan)' },
     { no: 4, docs: ['kak', 'ppp'], uraian: 'Memeriksa kesesuaian Spesifikasi Teknis/KAK dengan struktur kategori produk pada Katalog Elektronik (kategori Level I s.d. Level III) beserta atribut produk yang wajib diisi, sehingga seluruh persyaratan teknis dapat ditayangkan secara utuh pada sistem dan tidak ada persyaratan yang hilang saat diinput.' },
     { no: 5, docs: ['kak'], uraian: 'Memeriksa kesesuaian data calon penerima bantuan (CPCL), lokasi titik bagi, dan status verifikasinya.' }] },
   { id: 'hps', judul: 'Reviu terhadap Harga Perkiraan Sendiri (HPS)', items: [
@@ -31,17 +31,21 @@ const RVG = [
     { no: 3, docs: ['anggaran', 'rup'], uraian: 'Mata Anggaran Keluaran (MAK) telah sesuai dan dapat direalisasikan.' }] },
   { id: 'rup', judul: 'Reviu terhadap ID Paket RUP (Rencana Umum Pengadaan)', items: [
     { no: 1, docs: ['rup'], uraian: 'Memeriksa Kode Paket RUP apakah sudah tersedia dan telah diumumkan dalam SiRUP.' },
-    { no: 2, docs: ['rup'], uraian: 'Memeriksa kesesuaian dengan metode pemilihan di RUP.' }] },
+    { no: 2, docs: ['rup'], uraian: 'Memeriksa kesesuaian dengan metode pemilihan di RUP.' },
+    { no: 3, docs: ['rup'], manual: true, uraian: 'Memeriksa apakah Paket Pengadaan merupakan barang/jasa yang dapat dikonsolidasikan.' },
+    { no: 4, docs: ['rup', 'kak'], uraian: 'Kesesuaian isi RUP dengan dokumen persiapan.' }] },
   { id: 'wkt', judul: 'Reviu terhadap Waktu Pengadaan Barang/Jasa', items: [
     { no: 1, docs: ['kak', 'rup', 'kontrak', 'sskk'], uraian: 'Memastikan pelaksanaan waktu pengadaan barang/jasa telah sesuai dengan waktu rencana penggunaan/pemanfaatan barang/jasa.' }] },
   { id: 'pas', judul: 'Reviu terhadap Analisis Pasar', items: [
-    { no: 1, docs: ['pasar'], uraian: 'Memastikan ketersediaan barang/jasa dan pelaku usaha dalam negeri yang mampu dan memenuhi persyaratan.' }] },
-  { id: 'kual', judul: 'Reviu terhadap Kualifikasi Penyedia, Uraian Pekerjaan, dan Identifikasi Risiko', items: [
+    { no: 1, docs: ['pasar'], uraian: 'Memastikan ketersediaan barang/jasa dan pelaku usaha dalam negeri yang mampu dan memenuhi persyaratan.' },
+    { no: 2, docs: ['rup', 'kak'], manual: true, uraian: 'Kualifikasi penyedia.' }] },
+  { id: 'kual', off: true, judul: 'Reviu terhadap Kualifikasi Penyedia, Uraian Pekerjaan, dan Identifikasi Risiko', items: [
     { no: 1, docs: ['kak', 'ppp'], uraian: 'Memeriksa persyaratan kualifikasi penyedia.' },
     { no: 2, docs: ['kak', 'ppp'], uraian: 'Memeriksa persyaratan teknis penyedia.' },
     { no: 3, docs: ['ppp', 'kak'], uraian: 'Memeriksa kesiapan dokumen untuk pelaksanaan Mini Kompetisi pada Katalog Elektronik.' },
     { no: 4, docs: ['kak', 'hps', 'kontrak', 'ssuk', 'sskk', 'ppp', 'anggaran', 'rup', 'pasar'], uraian: 'Mengidentifikasi risiko pelaksanaan pekerjaan.' }] },
 ];
+RVG.forEach((g) => g.items.forEach((it) => { let k = 0; it.uraian = it.uraian.split('\n').map((ln) => (/^- /.test(ln) ? `${String.fromCharCode(97 + k++)}. ${ln.slice(2)}` : ((k = 0), ln))).join('\n'); }));
 const RVITEMS = RVG.flatMap((g) => g.items.map((i) => ({ id: g.id + '.' + i.no, g: g.id, ...i })));
 const RVITEM = Object.fromEntries(RVITEMS.map((i) => [i.id, i]));
 const RVDEF = { ppp: 'kual.3', kak: 'kak.1', hps: 'hps.1', kontrak: 'kon.1', ssuk: 'kon.2', sskk: 'kon.3', anggaran: 'ang.1', rup: 'rup.1', pasar: 'pas.1' };
@@ -199,42 +203,62 @@ rvScan = function (T, p, o = {}) {
     if (out.some((f) => f.kat === 'Isian' && ['kontrak', 'sskk', 'ssuk'].includes(f.doc))) R.push('isian rancangan kontrak yang masih kosong berpotensi menghambat penerbitan Surat Pesanan;');
     if (out.some((f) => f.doc === 'pasar')) R.push('ketersediaan penyedia dan stok belum terkonfirmasi melalui analisis pasar;');
     R.forEach((r, i) => N('kual.4', r[0].toUpperCase() + r.slice(1, -1) + (i === R.length - 1 ? '.' : ';'))); if (!R.length) N('kual.4', 'Belum ada risiko yang teridentifikasi otomatis; tambahkan risiko spesifik paket secara manual (mis. mutu barang, pengiriman, ketersediaan penyedia).'); }
+  if (I('rup') && !out.some((f) => f.doc === 'rup' || /Kode RUP|^Nilai pagu|MAK/.test(f.uraian))) N('rup.4', 'Isi RUP (kode paket, pagu, MAK, metode pemilihan) sesuai dengan dokumen persiapan yang dipindai.');
+  { const kk = (I('rup') && /usaha kecil|koperasi/i.test(X('rup'))) || (I('kak') && /usaha kecil|koperasi/i.test(X('kak'))); if (kk) N('pas.2', 'Kualifikasi penyedia ditetapkan Usaha Kecil/Koperasi sesuai RUP dan KAK' + (/non kecil/i.test(X('kak')) ? '; KAK menyebut PPK dapat memilih Non Kecil bila tidak terpenuhi.' : '.')); }
   const order = Object.fromEntries(RV.map((x, i) => [x[0], i])), sv = { tinggi: 0, sedang: 1, rendah: 2 };
   out.forEach((f) => { f.item = rvMap(f); }); out.sort((a, b) => order[a.doc] - order[b.doc] || sv[a.sev] - sv[b.sev]); out.notes = NTS; return out;
 };
 
-/* ---------- penyusunan catatan & rekomendasi per butir ---------- */
+/* ---------- format BA: "Berita Acara Hasil Reviu Dokumen Pemilihan Paket Mini Kompetisi" ---------- */
+PF.push(['mak', 'MAK (Mata Anggaran Keluaran)']);
+const rvGHidden = (l, g) => (l.rvHide && l.rvHide[g.id] !== undefined ? !!l.rvHide[g.id] : !!g.off);
+const rvIHidden = (l, id) => !!(l.rvHideItem && l.rvHideItem[id]);
+const rvVis = (l, g) => g.items.filter((it) => !rvIHidden(l, g.id + '.' + it.no));
+const rvUraian = (l, id) => (l.rvUr && l.rvUr[id] !== undefined ? l.rvUr[id] : RVITEM[id].uraian);
 const lc1 = (s) => s.replace(/^[A-Z](?=[a-z])/, (c) => c.toLowerCase());
+const rvFinds = (l, id) => (l.rvTemuan || []).filter((x) => x.on !== false && (x.uraian || '').trim() && rvMap(x) === id);
 function rvLines(l, id) {
   const ov = (l.rvCat || {})[id]; if (ov !== undefined) return String(ov).split('\n').filter((s) => s.trim() !== '');
-  const notes = (l.rvNotes || {})[id] || [], fs = (l.rvTemuan || []).filter((x) => x.on !== false && (x.uraian || '').trim() && rvMap(x) === id).map((x) => x.uraian.trim());
-  const need = RVITEM[id].docs, got = need.some((k) => l.rvDocs && l.rvDocs[k]);
-  if (!got && !notes.length && !fs.length) return [`Dokumen ${need.map((k) => RVS[k]).join('/')} belum diunggah/dipindai sehingga butir ini belum dapat diperiksa.`];
-  const all = [...notes, ...fs]; return all.length ? all : ['Tidak ditemukan ketidaksesuaian pada dokumen yang dipindai.'];
+  const it = RVITEM[id], notes = (l.rvNotes || {})[id] || [], fs = rvFinds(l, id), got = it.docs.some((k) => l.rvDocs && l.rvDocs[k]);
+  if (!notes.length && !fs.length) return it.manual ? [] : got ? ['Tidak ditemukan ketidaksesuaian pada dokumen yang dipindai.'] : [`Dokumen ${it.docs.map((k) => RVS[k]).join('/')} belum diunggah/dipindai sehingga butir ini belum dapat diperiksa.`];
+  const sev = fs.map((x) => x.sev), st = sev.includes('tinggi') ? 'Perlu perbaikan.' : sev.includes('sedang') ? 'Perlu penegasan.' : sev.includes('rendah') ? 'Perlu perhatian.' : 'Sesuai.';
+  return [st, ...notes, ...fs.map((x) => x.uraian.trim())];
 }
 function rvRecs(l, g) {
   const ov = (l.rvRek || {})[g.id]; if (ov !== undefined) return String(ov).split('\n').filter((s) => s.trim());
-  const ids = g.items.map((i) => g.id + '.' + i.no), sv = { tinggi: 0, sedang: 1, rendah: 2 };
+  const ids = rvVis(l, g).map((i) => g.id + '.' + i.no), sv = { tinggi: 0, sedang: 1, rendah: 2 };
   const fs = (l.rvTemuan || []).filter((x) => x.on !== false && (x.koreksi || '').trim() && ids.includes(rvMap(x))).sort((a, b) => (sv[a.sev] ?? 3) - (sv[b.sev] ?? 3));
   return [...new Set(fs.map((x) => `Pada ${RVS[x.doc] || x.doc}: ${lc1(x.koreksi.trim())}`))];
 }
-const cellH = (txt) => { let h = '', ul = []; const fl = () => { if (ul.length) { h += `<ul style="margin:2px 0 4px 16px;padding:0">${ul.join('')}</ul>`; ul = []; } };
-  for (const ln of String(txt).split('\n')) { if (/^- /.test(ln)) ul.push(`<li>${esc(ln.slice(2))}</li>`); else if (ln.trim()) { fl(); h += `<p style="margin:2px 0;text-align:left">${esc(ln)}</p>`; } } fl(); return h; };
+const cellH = (txt) => { let h = ''; for (const ln of String(txt).split('\n')) { const m = /^([a-z]|\d{1,2})[.)]\s+(.*)$/.exec(ln); if (m) h += `<div style="padding-left:20px;text-indent:-20px;margin:1px 0;text-align:left">${m[1]}.&nbsp; ${esc(m[2])}</div>`; else if (ln.trim()) h += `<p style="margin:2px 0;text-align:left">${esc(ln)}</p>`; } return h; };
+const kt2 = (s) => { const d = pd(s || today()); return `${hari(s || today())} tanggal ${cap(tb(d.getDate()))} bulan ${BL[d.getMonth()]} tahun ${cap(tb(d.getFullYear()))}`; };
+const rvDokDef = (l, p) => { const nm = l.kegiatan || p.nama; return [`Surat Permintaan Pemilihan Penyedia Barang/Jasa Nomor ...... tanggal ......;`, `Kerangka Acuan Kerja ${nm};`, `Harga Perkiraan Sendiri (HPS) ${nm};`, 'Rancangan Syarat-Syarat Umum Kontrak (SSUK) dan Syarat-Syarat Khusus Kontrak (SSKK) beserta lampiran Spesifikasi Teknis dan Alokasi Titik Bagi;', 'Daftar Calon Penerima Calon Lokasi (CPCL) sebagaimana Keputusan PPK ...... Nomor ...... tanggal ......;', `Detil Paket RUP Kode ${p.rup || '......'} pada SiRUP;`, `Petunjuk Operasional Kegiatan (POK) TA ${p.tahun || yr(l)} Satker ...... ${p.satker || ''};`]; };
+const rvCloseDef = (l) => { const akun = (D.pokja.find((x) => x.id === l.akun) || (angOf(l)[0] && angOf(l)[0].p) || {}).nama || '......'; return ['Pokja Pemilihan menyetujui hasil reviu dokumen pemilihan pada Paket Pengadaan E-Purchasing Barang melalui metode Mini Kompetisi yang telah disusun sebagaimana terlampir di dalam Berita Acara ini/Aplikasi Katalog Elektronik.', `Pokja Pemilihan menunjuk dan melimpahkan kewenangan kepada Pokja ${akun} (salah satu anggota Pokja Pemilihan) untuk melakukan proses Mini Kompetisi pada Aplikasi Katalog Elektronik. Namun, tidak melepaskan segala keputusan dan tanggung jawab setiap anggota Pokja Pemilihan.`, 'Segala keputusan dan tindakan yang disepakati oleh seluruh anggota Pokja Pemilihan pada proses evaluasi sebagaimana diatur di dalam Berita Acara ini merupakan kesepakatan bersama yang sah.', 'Apabila terdapat perbedaan antara Berita Acara ini dengan hasil dalam Aplikasi Katalog Elektronik, maka yang digunakan adalah informasi dan keputusan yang terdapat dalam Berita Acara ini.']; };
+const rvTtd = (t) => lines(t).map((x) => { const [nama, nip, jabatan] = x.split('|').map((s) => s.trim()); return { nama, nip, jabatan: jabatan || '' }; });
 R.bareviu = function (l, p) {
-  const t = rvOn(l), nm = l.kegiatan || p.nama, c = (s) => t.filter((x) => x.sev === s).length, hasT = c('tinggi');
-  const kes = !t.length ? 'dokumen persiapan telah sesuai dan dapat dilanjutkan ke tahap pemilihan penyedia.' : hasT ? 'dokumen persiapan <b>belum dapat dilanjutkan</b> ke tahap pemilihan penyedia sebelum PPK memperbaiki temuan, terutama yang berkategori tinggi, dan menyampaikan kembali dokumen hasil perbaikan kepada Pokja Pemilihan.' : 'dokumen persiapan <b>dapat dilanjutkan</b> dengan ketentuan PPK menindaklanjuti rekomendasi reviu sebagaimana tabel di atas.';
-  const grp = RVG.map((g) => { const rows = g.items.map((it) => `<tr><td style="text-align:center">${it.no}.</td><td>${cellH(it.uraian)}</td><td>${cellH(rvLines(l, g.id + '.' + it.no).join('\n'))}</td></tr>`).join(''), rec = rvRecs(l, g);
-    return `<p style="margin:12px 0 4px;text-align:left"><b>${esc(g.judul)}</b></p><table class=b style="margin:2px 0;font-size:10pt;width:100%"><tr><th style="width:7%">No.</th><th style="width:44%">Uraian</th><th>Catatan/Pembahasan</th></tr>${rows}</table><p style="margin:6px 0 2px">Rekomendasi/hasil catatan reviu:</p>${rec.length ? ol(rec.map(esc)) : '<p style="margin:0">-</p>'}`; }).join('');
-  return `<p class=tc style="margin:0">BERITA ACARA REVIU DOKUMEN PERSIAPAN PENGADAAN</p><p class=tc style="font-weight:400;margin-top:4px">Nomor: ${nomor(l)}</p>
-  <p>Pada hari ini ${tglKata(l.tgl)}, kami selaku Kelompok Kerja (Pokja) Pemilihan berdasarkan Surat Tugas ${esc(p.pejabatST || S().pejabat)} Nomor: ${esc(p.stNo)} tanggal ${tgl(p.stTgl)}, telah melakukan reviu${(l.rvRonde || 1) > 1 ? ` (reviu ke-${l.rvRonde})` : ''} terhadap dokumen persiapan pengadaan pada:</p>
-  ${kv([['Nama Paket', esc(nm)], ['Satuan Kerja', esc([p.satker, p.eselon1].filter(Boolean).join(', '))], ['Nilai Pagu Anggaran', rn(num(p.pagu))], ['Nilai HPS', rn(num(p.hps))], ['Sumber Anggaran', esc(p.sumber)], ['Kode RUP', esc(p.rup)]], 170)}
-  <p style="text-align:left"><b>Hasil reviu dokumen pemilihan adalah sebagai berikut:</b></p>${grp}
-  <p>${t.length ? `Secara keseluruhan terdapat <b>${t.length}</b> temuan (${c('tinggi')} tinggi, ${c('sedang')} sedang, ${c('rendah')} rendah). ` : ''}${l.rvTeratasi && l.rvTeratasi.length ? `Dari hasil reviu sebelumnya, <b>${l.rvTeratasi.length}</b> temuan telah ditindaklanjuti dan dinyatakan sesuai. ` : ''}Berdasarkan hasil reviu tersebut, ${kes}</p>
-  <p>Demikian Berita Acara Reviu Dokumen Persiapan ini dibuat untuk dipergunakan sebagaimana mestinya.</p>${angTable(l, { num: false })}
-  <div style="break-inside:avoid;margin-top:14px"><p style="margin:0">Menerima hasil reviu,</p><p style="margin:0">${esc(p.ppk || 'Pejabat Pembuat Komitmen')}</p><div style="height:54px"></div><p style="margin:0">( ........................................ )</p></div>`;
+  const nm = l.kegiatan || p.nama, mak = l.rvMak || p.mak || '......';
+  const dok = (l.rvDokTxt !== undefined ? lines(l.rvDokTxt) : rvDokDef(l, p)).map((x, i) => `<div style="padding-left:30px;text-indent:-30px;margin:2px 0;text-align:justify">(${String.fromCharCode(97 + i)})&nbsp; ${esc(x)}</div>`).join('');
+  let gn = 0;
+  const grp = RVG.filter((g) => !rvGHidden(l, g)).map((g) => {
+    const items = rvVis(l, g), xs = (l.rvXtra && l.rvXtra[g.id]) || []; let n = 0;
+    const rows = items.map((it) => `<tr><td style="text-align:center">${++n}.</td><td>${cellH(rvUraian(l, g.id + '.' + it.no))}</td><td>${cellH(rvLines(l, g.id + '.' + it.no).join('\n'))}</td></tr>`).join('') + xs.map((x) => `<tr><td style="text-align:center">${++n}.</td><td>${cellH(x.uraian || '')}</td><td>${cellH(x.catatan || '')}</td></tr>`).join('');
+    const rec = rvRecs(l, g); gn++;
+    return `<p style="margin:12px 0 4px;text-align:left"><b>${gn}. ${esc(g.judul)}</b></p><table class=b style="margin:2px 0;font-size:10pt;width:100%"><tr><th style="width:7%">No.</th><th style="width:44%">Uraian</th><th>Catatan/Pembahasan</th></tr>${rows}</table><p style="margin:6px 0 2px;text-align:left">Rekomendasi/hasil catatan reviu:</p>${rec.length ? ol(rec.map(esc)) : '<p style="margin:0">-</p>'}`;
+  }).join('');
+  const cl = l.rvClose !== undefined ? lines(l.rvClose) : rvCloseDef(l), ang = angOf(l);
+  const trs = [...rvTtd(l.rvTtdA).map((x) => ({ ...x, sig: 'TTD.' })), ...ang.map((a, i) => ({ nama: a.p.nama, nip: a.p.nip, jabatan: 'Anggota Pokja Pemilihan ' + (i + 1), sig: sigCell(a) || 'TTD.' })), ...rvTtd(l.rvTtdB).map((x) => ({ ...x, sig: 'TTD.' }))];
+  return `<p class=tc style="margin:0">BERITA ACARA HASIL REVIU DOKUMEN PEMILIHAN</p><p class=tc style="margin:2px 0 0">PAKET MINI KOMPETISI PENGADAAN BARANG MELALUI KATALOG ELEKTRONIK</p><p class=tc style="font-weight:400;margin-top:4px">Nomor: ${nomor(l)}</p>
+  <p>Pada hari ini ${kt2(l.tgl)}, secara ${esc(l.rvCara || 'Hybrid')}, telah dilakukan Reviu Dokumen Pemilihan oleh Pokja Pemilihan yang ditugaskan berdasarkan Surat Tugas ${esc(p.pejabatST || S().pejabat)} Nomor ${esc(p.stNo)} tanggal ${tgl(p.stTgl)} untuk Paket ${esc(nm)}, dengan pagu anggaran ${rn(num(p.pagu))} dan HPS ${rn(num(p.hps))}, MAK ${esc(mak)}, Kode RUP ${esc(p.rup || '......')}, yang akan dilaksanakan melalui E-Purchasing Katalog Elektronik dengan metode Mini Kompetisi.</p>
+  <p style="margin-bottom:2px;text-align:left">Dokumen yang direviu terdiri atas:</p>${dok}
+  <p style="margin-top:10px">Hasil reviu dokumen pemilihan Paket ${esc(nm)} adalah sebagai berikut:</p>${grp}
+  <p style="margin-top:14px">Berdasarkan proses reviu dokumen pemilihan yang telah dilakukan, dengan ini Pokja Pemilihan menyatakan dan menyepakati sebagai berikut:</p>${ol(cl.map(esc))}
+  ${l.tambah ? `<p>${nl(l.tambah)}</p>` : ''}<p>Demikian Berita Acara Reviu Dokumen Persiapan Pengadaan ini dibuat pada hari, tanggal, tahun sebagaimana tersebut di atas. Apabila diperlukan, Pokja Pemilihan dan Pejabat Pembuat Komitmen (PPK) serta tim teknis kegiatan dapat melakukan reviu lanjutan.</p>
+  <p style="margin:14px 0 4px;text-align:left;break-after:avoid">Tabel 1. Kolom Tanda Tangan para Pihak dalam Reviu Dokumen Persiapan Pengadaan</p><table class=b style="width:100%;break-inside:avoid"><tr><th style="width:34px">No</th><th>Nama</th><th style="width:27%">Jabatan</th><th style="width:22%">Tanda Tangan</th></tr>${trs.map((x, i) => `<tr><td style="text-align:center">${i + 1}.</td><td>${esc(x.nama)}${x.nip ? `<br>NIP ${esc(x.nip)}` : ''}</td><td>${esc(x.jabatan)}</td><td style="height:54px;text-align:center;vertical-align:middle">${x.sig}</td></tr>`).join('')}</table>`;
 };
 
 /* ---------- pemindaian ---------- */
+const _ext2 = rvExtract;
+rvExtract = function (T, p) { const o = _ext2(T, p), mk = []; for (const k of RV.map((x) => x[0])) for (const m of ((T[k] && T[k].text) || '').matchAll(/([A-Z]{2}\.\d{4}\.[A-Z]{3}\.\d{3}\.\d{3}\.[A-Z0-9]{2}\.\d{6}|[A-Z]{3}\.\d{3}\.\d{3}\.[A-Z0-9]{2}\.\d{6})/g)) mk.push(m[1]); if (mk.length) { const c = {}; mk.forEach((x) => (c[x] = (c[x] || 0) + 1)); const v = Object.keys(c).sort((a, b) => c[b] - c[a])[0]; o.push({ f: 'mak', lb: 'MAK', v, show: v, cur: String(p.mak || '') === v }); } return o; };
 rvRun = function () {
   const T = RVT[L.id] || {}, p = paketOf(L), msg = $('#rvmsg');
   if (!p) { if (msg) msg.textContent = 'Pilih paket dulu.'; return; }
@@ -249,27 +273,39 @@ rvRun = function () {
 /* ---------- formulir ---------- */
 const RVOPT = ['kontrak', 'anggaran', 'rup', 'pasar'];
 FB.bareviu = function () {
-  const ts = (L.rvTemuan ||= []), n = rvOn(L);
+  const ts = (L.rvTemuan ||= []), n = rvOn(L), p = paketOf(L) || {};
   const docs = RV.map(([k, nm]) => `<div class=card2><div class=r1><b style="flex:1">${esc(nm)}</b><a data-rv="drive:${k}">dari Drive</a> · <a data-rv="paste:${k}">tempel teks</a></div><input type=file accept=".docx,.xlsx,.pdf,.txt" data-rvf=${k}><div class=muted id="rvs-${k}" style="margin-top:4px">${rvStat(k)}</div>${RVOPT.includes(k) ? `<label class=cbx style="margin:4px 0 0"><input type=checkbox data-rvno=${k} ${L.rvTidak && L.rvTidak[k] ? 'checked' : ''}> Tidak dilampirkan (catat sebagai temuan)</label>` : ''}<textarea id="rvta-${k}" data-rvt=${k} style="display:none;margin-top:6px" placeholder="Tempel isi ${esc(RVS[k])} di sini…"></textarea></div>`).join('');
   const itemOpts = RVITEMS.map((i) => [i.id, `${i.g.toUpperCase()}.${i.no}`]);
   const sel = (i, k, opts, cur) => `<select data-p="rvTemuan.${i}.${k}">${opts.map(([v, t]) => `<option value="${v}" ${(cur ?? ts[i][k]) === v ? 'selected' : ''}>${t}</option>`).join('')}</select>`;
   const list = ts.map((x, i) => `<div class=card2 style="${x.on === false ? 'opacity:.55' : ''}"><div class=r1><label class=cbx style="margin:0;flex:1"><input type=checkbox data-rvon=${i} ${x.on === false ? '' : 'checked'}> <b>${i + 1}.</b> <span class=muted>${esc(x.kat || 'Manual')}</span></label><button class=ib data-rv="del:${i}">×</button></div><div class=g2><div><label>Dokumen</label>${sel(i, 'doc', RV.map(([k, , s]) => [k, s]))}</div><div><label>Tingkat</label>${sel(i, 'sev', [['tinggi', 'Tinggi'], ['sedang', 'Sedang'], ['rendah', 'Rendah']])}</div></div><label>Butir reviu</label>${sel(i, 'item', itemOpts, rvMap(x))}<label>Temuan</label><textarea data-p="rvTemuan.${i}.uraian">${esc(x.uraian || '')}</textarea><label>Koreksi / saran</label><textarea data-p="rvTemuan.${i}.koreksi">${esc(x.koreksi || '')}</textarea>${x.lok ? `<small class=muted>Kutipan: ${esc(x.lok.slice(0, 160))}</small>` : ''}</div>`).join('');
-  const matriks = RVG.map((g) => `<details class=more><summary>${esc(g.judul.replace(/^Reviu terhadap /, ''))}</summary>${g.items.map((it) => { const id = g.id + '.' + it.no, ov = (L.rvCat || {})[id] !== undefined; return `<label>Butir ${it.no} ${ov ? '<a data-rv="rc:' + id + '">(kembalikan otomatis)</a>' : ''}</label><textarea data-rvc="${id}" rows=4>${esc(rvLines(L, id).join('\n'))}</textarea>`; }).join('')}<label>Rekomendasi/hasil catatan reviu ${(L.rvRek || {})[g.id] !== undefined ? '<a data-rv="rr:' + g.id + '">(kembalikan otomatis)</a>' : ''} <span class=muted>(satu rekomendasi per baris)</span></label><textarea data-rvr="${g.id}" rows=4>${esc(rvRecs(L, g).join('\n'))}</textarea></details>`).join('');
-  return sec(2, 'Dokumen yang dipindai (9 jenis sesuai format reviu)', `<div class=nfo>Unggah berkas <b>.docx / .xlsx / .pdf / .txt</b> atau tempel teks. Dibaca di browser; isi dokumen tidak disimpan ke server — hanya temuan, catatan, dan rekomendasi. Dokumen yang tidak ada boleh dikosongkan.</div>${docs}<p><button class="btn p" data-rv="scan:0">Pindai kesesuaian</button> <button class=btn data-rv="auto:0" title="Cari dokumen di folder Drive paket ini lalu langsung dipindai">☁ Ambil dari Drive & pindai</button> <span class=muted id=rvmsg>${L.rvScanAt ? `Terakhir dipindai ${new Date(L.rvScanAt).toLocaleString('id-ID')} · ${n.length} temuan aktif` : ''}</span></p>`)
+  const matriks = RVG.map((g, gi) => { const hid = rvGHidden(L, g), xs = (L.rvXtra && L.rvXtra[g.id]) || [];
+    return `<details class=more><summary>${gi + 1}. ${esc(g.judul.replace(/^Reviu terhadap /, ''))}${hid ? ' <span class=muted>— disembunyikan</span>' : ''}</summary><label class=cbx><input type=checkbox data-rvg="${g.id}" ${hid ? '' : 'checked'}> Tampilkan reviu ini di BA</label>
+    ${g.items.map((it) => { const id = g.id + '.' + it.no, hi = rvIHidden(L, id), ovU = L.rvUr && L.rvUr[id] !== undefined, ov = (L.rvCat || {})[id] !== undefined; return `<div class=card2 style="${hi ? 'opacity:.55' : ''}"><label class=cbx><input type=checkbox data-rvi="${id}" ${hi ? '' : 'checked'}> <b>Butir ${it.no}</b> ${hi ? '<span class=muted>(disembunyikan)</span>' : ''}</label><label>Uraian ${ovU ? `<a data-rv="ur:${id}">(kembalikan)</a>` : ''}</label><textarea data-rvu="${id}" rows=3>${esc(rvUraian(L, id))}</textarea><label>Catatan/Pembahasan ${ov ? `<a data-rv="rc:${id}">(kembalikan otomatis)</a>` : ''}</label><textarea data-rvc="${id}" rows=4>${esc(rvLines(L, id).join('\n'))}</textarea></div>`; }).join('')}
+    ${xs.map((x, i) => `<div class=card2><div class=r1><b style="flex:1">Butir tambahan ${i + 1}</b><button class=ib data-rv="delx:${g.id}.${i}">×</button></div><label>Uraian</label><textarea data-rvx="${g.id}.${i}.uraian" rows=3>${esc(x.uraian || '')}</textarea><label>Catatan/Pembahasan</label><textarea data-rvx="${g.id}.${i}.catatan" rows=4>${esc(x.catatan || '')}</textarea></div>`).join('')}
+    <p><a data-rv="addx:${g.id}">+ Tambah butir uraian</a></p>
+    <label>Rekomendasi/hasil catatan reviu ${(L.rvRek || {})[g.id] !== undefined ? `<a data-rv="rr:${g.id}">(kembalikan otomatis)</a>` : ''} <span class=muted>(satu rekomendasi per baris)</span></label><textarea data-rvr="${g.id}" rows=4>${esc(rvRecs(L, g).join('\n'))}</textarea></details>`; }).join('');
+  return sec(2, 'Dokumen yang dipindai (9 jenis)', `<div class=nfo>Unggah berkas <b>.docx / .xlsx / .pdf / .txt</b> atau tempel teks. Dibaca di browser; isi dokumen tidak disimpan ke server — hanya temuan, catatan, dan rekomendasi. Dokumen yang tidak ada boleh dikosongkan.</div>${docs}<p><button class="btn p" data-rv="scan:0">Pindai kesesuaian</button> <button class=btn data-rv="auto:0" title="Cari dokumen di folder Drive paket ini lalu langsung dipindai">☁ Ambil dari Drive & pindai</button> <span class=muted id=rvmsg>${L.rvScanAt ? `Terakhir dipindai ${new Date(L.rvScanAt).toLocaleString('id-ID')} · ${n.length} temuan aktif` : ''}</span></p>`)
     + rvExtCard()
     + sec(3, `Temuan & koreksi (${n.length} aktif dari ${ts.length})`, (L.rvTeratasi && L.rvTeratasi.length ? `<div class=nfo style="background:#e3f6ea">✓ ${L.rvTeratasi.length} temuan dari pemindaian sebelumnya sudah teratasi (reviu ke-${L.rvRonde || 1}).</div>` : '') + (list || '<p class=muted>Belum ada temuan. Pindai dokumen, atau tambahkan temuan manual.</p>') + '<p><a data-rv="add:0">+ Tambah temuan manual</a>' + (ts.length ? ' · <a data-rv="copy:0">Salin ringkasan (WhatsApp)</a> · <a data-rv="csv:0">Unduh .csv</a>' : '') + '</p>')
-    + sec(4, 'Catatan/Pembahasan & Rekomendasi per butir (format BA)', `<p class=muted>Disusun otomatis dari temuan dan pemeriksaan. Ubah teks sesuai kebutuhan — perubahan Anda dipertahankan saat pindai ulang. <a data-rv="reset:0">Susun ulang semua otomatis</a></p>${matriks}`)
-    + sec(5, 'Nomor & tanggal', numBox('Tanggal BA'))
-    + more('Lainnya — anggota Pokja, teks tambahan, kertas', `${angPanel()}${fx('tambah', 'Paragraf tambahan sebelum kalimat penutup (opsional)', { area: 1 })}${fx('kegiatan', 'Nama Pokja / kegiatan (kosong = nama paket)', { area: 1, ph: (paketOf(L) || {}).nama })}${kertasBln()}`);
+    + sec(4, 'Isi BA: pembuka, daftar dokumen, penutup, tanda tangan', `<div class=g2>${fx('rvCara', 'Cara pelaksanaan reviu', { opts: ['Hybrid', 'Daring', 'Luring'], val: 'Hybrid' })}${fx('rvMak', 'MAK (kosong = data paket)', { ph: p.mak || 'mis. HA.3993.RAG.005.055.HA.526311' })}</div>${fx('rvDokTxt', 'Dokumen yang direviu (satu per baris — tambah/kurangi bebas)', { area: 1, val: rvDokDef(L, p).join('\n') })}${fx('rvClose', 'Pernyataan penutup (satu poin per baris)', { area: 1, val: rvCloseDef(L).join('\n') })}${fx('rvTtdA', 'Penandatangan sebelum Pokja, mis. PPK (satu per baris: Nama | NIP | Jabatan)', { area: 1, ph: 'Dr. Ir. … | 1967… | Pejabat Pembuat Komitmen (PPK)' })}${fx('rvTtdB', 'Penandatangan sesudah Pokja, mis. Tim Teknis (satu per baris: Nama | NIP | Jabatan)', { area: 1, ph: 'Nama | NIP | Tim Teknis Kegiatan' })}`)
+    + sec(5, 'Butir reviu: tampilkan/sembunyikan, uraian, catatan & rekomendasi', `<p class=muted>Centang untuk menampilkan kelompok/butir di BA. Uraian dan catatan bisa disunting; butir baru bisa ditambah. Catatan disusun otomatis dari pemindaian dan sunting Anda dipertahankan. <a data-rv="reset:0">Susun ulang semua otomatis</a></p>${matriks}`)
+    + sec(6, 'Nomor & tanggal', numBox('Tanggal BA'))
+    + more('Lainnya — anggota Pokja, pemegang akun, teks tambahan, kertas', `${angPanel()}<div class=fld><label>Pokja pemegang akun katalog</label><select data-k=akun>${L.angs.map((a) => { const q = D.pokja.find((x) => x.id === a.id); return q ? `<option value="${q.id}" ${q.id === L.akun ? 'selected' : ''}>${esc(q.nama)}</option>` : ''; }).join('')}</select></div>${fx('tambah', 'Paragraf tambahan sebelum kalimat penutup (opsional)', { area: 1 })}${fx('kegiatan', 'Nama paket pada BA (kosong = nama paket)', { area: 1, ph: p.nama })}${kertasBln()}`);
 };
 const _wire6 = wire;
 wire = function () {
   _wire6(); const f = $('#fm'); if (!f || f._rv2) return; f._rv2 = 1;
-  f.addEventListener('input', (e) => { const x = e.target, d = x.dataset; if (d.rvc) { (L.rvCat ||= {})[d.rvc] = x.value; prev(); } else if (d.rvr) { (L.rvRek ||= {})[d.rvr] = x.value; prev(); } });
-  f.addEventListener('change', (e) => { const x = e.target, d = x.dataset; if (d.rvno) { (L.rvTidak ||= {})[d.rvno] = x.checked; } });
+  f.addEventListener('input', (e) => { const x = e.target, d = x.dataset;
+    if (d.rvc) { (L.rvCat ||= {})[d.rvc] = x.value; prev(); } else if (d.rvr) { (L.rvRek ||= {})[d.rvr] = x.value; prev(); } else if (d.rvu) { (L.rvUr ||= {})[d.rvu] = x.value; prev(); }
+    else if (d.rvx) { const [g, i, k] = d.rvx.split('.'); L.rvXtra[g][+i][k] = x.value; prev(); } });
+  f.addEventListener('change', (e) => { const x = e.target, d = x.dataset;
+    if (d.rvno) (L.rvTidak ||= {})[d.rvno] = x.checked;
+    else if (d.rvg) { (L.rvHide ||= {})[d.rvg] = !x.checked; rerender(); } else if (d.rvi) { (L.rvHideItem ||= {})[d.rvi] = !x.checked; rerender(); } });
   f.addEventListener('click', (e) => { const b = e.target.closest('[data-rv]'); if (!b) return; const [c, i] = b.dataset.rv.split(':');
-    if (c === 'rc') { delete (L.rvCat || {})[i]; rerender(); } else if (c === 'rr') { delete (L.rvRek || {})[i]; rerender(); }
-    else if (c === 'reset') { if (confirm('Hapus semua perubahan manual pada catatan & rekomendasi?')) { L.rvCat = {}; L.rvRek = {}; rerender(); } } });
+    if (c === 'rc') { delete (L.rvCat || {})[i]; rerender(); } else if (c === 'rr') { delete (L.rvRek || {})[i]; rerender(); } else if (c === 'ur') { delete (L.rvUr || {})[i]; rerender(); }
+    else if (c === 'addx') { ((L.rvXtra ||= {})[i] ||= []).push({ uraian: '', catatan: '' }); rerender(); }
+    else if (c === 'delx') { const [g, k] = i.split('.'); L.rvXtra[g].splice(+k, 1); rerender(); }
+    else if (c === 'reset') { if (confirm('Hapus semua perubahan manual pada uraian, catatan, dan rekomendasi?')) { L.rvCat = {}; L.rvRek = {}; L.rvUr = {}; rerender(); } } });
 };
 const _nl7 = newLetter;
-newLetter = function (tpl, from) { const l = _nl7(tpl, from); if (tpl === 'bareviu' && !(from && from.tpl === 'bareviu')) { l.rvNotes = {}; l.rvCat = {}; l.rvRek = {}; l.rvTidak = {}; } return l; };
+newLetter = function (tpl, from) { const l = _nl7(tpl, from); if (tpl === 'bareviu' && !(from && from.tpl === 'bareviu')) { Object.assign(l, { rvNotes: {}, rvCat: {}, rvRek: {}, rvTidak: {}, rvHide: {}, rvHideItem: {}, rvUr: {}, rvXtra: {} }); } return l; };

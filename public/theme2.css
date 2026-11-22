@@ -18,3 +18,5 @@
 .pvh .zc{display:flex;gap:6px;align-items:center}.pvh .zc a{background:#fff;color:var(--b);border-radius:8px;padding:1px 9px;cursor:pointer;font-weight:700}
 .wrap.fokus{grid-template-columns:0 1fr!important}.wrap.fokus .form{display:none}
 .bar .btn{padding:7px 12px}
+
+.sheet.lk{width:297mm!important;min-height:210mm}.sheet.lk table.lk td,.sheet.lk table.lk th{padding:2px 4px}.sheet.lk tr.nb td{border:0!important}
