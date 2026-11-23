@@ -83,3 +83,15 @@
 .mt.pes .n{width:110px;text-align:right}
 .mt.pes .n.tt{width:170px}
 .mt.pes .nm{min-width:200px}
+
+/* detail peserta di bawah baris wilayah */
+.mt.det tr.pxr td{position:static!important;background:#f6f8ff;padding:10px 14px 16px;box-shadow:none}
+.mt.det tr.pxr:hover td{background:#f6f8ff}
+.pxbox{max-width:1180px;position:sticky;left:12px}
+.pxh{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;margin-bottom:8px}
+.pxh .pbest{margin-left:auto}
+.pxbox .tw{background:#fff}
+.mt .pbtn{cursor:pointer;white-space:nowrap}
+.mt .pbtn.on{background:var(--b);color:#fff}
+.mt.pes td:nth-child(3){min-width:150px}
+.mt.pes td:nth-child(3) input,.mt.pes td:nth-child(4) input{width:100%;min-width:130px}
