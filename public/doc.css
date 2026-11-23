@@ -76,22 +76,27 @@
 .dtabs a{padding:8px 16px;border-radius:999px;background:var(--soft);font-weight:700;font-size:13px;cursor:pointer}
 .dtabs a small{margin-left:4px;opacity:.7}
 .dtabs a.on{background:var(--b);color:#fff}
-.mt.pes{min-width:1000px}
-.mt.pes input{width:100%}
-.mt.pes .c{width:64px;text-align:center}
-.mt.pes .su{width:80px}
-.mt.pes .n{width:110px;text-align:right}
-.mt.pes .n.tt{width:170px}
-.mt.pes .nm{min-width:200px}
+.mt.pes{width:100%;min-width:1060px;table-layout:fixed}
+.mt.pes input,.mt.pes select{width:100%;box-sizing:border-box}
+.mt.pes th:nth-child(1){width:7%}.mt.pes th:nth-child(2){width:19%}.mt.pes th:nth-child(3){width:12%}.mt.pes th:nth-child(4){width:7%}
+.mt.pes th:nth-child(5),.mt.pes th:nth-child(6){width:7%}.mt.pes th:nth-child(7){width:9%}.mt.pes th:nth-child(8){width:13%}
+.mt.pes th:nth-child(9){width:8%}.mt.pes th:nth-child(10){width:13%}.mt.pes th:nth-child(11){width:30px}
+.mt.pes .c{text-align:center}.mt.pes .n{text-align:right}
+.mt.pes tr.gug td{background:#fff1f1}
+.mt.pes tr.gug input,.mt.pes tr.gug select{color:#c62828;border-color:#f3b8b8;background:#fff6f6}
+.mt.pes tr.gug input[data-pf=nama]{text-decoration:line-through}
+.mt.pes select.sg.g{font-weight:700}
 
 /* detail peserta di bawah baris wilayah */
 .mt.det tr.pxr td{position:static!important;background:#f6f8ff;padding:10px 14px 16px;box-shadow:none}
 .mt.det tr.pxr:hover td{background:#f6f8ff}
-.pxbox{max-width:1180px;position:sticky;left:12px}
+.pxbox{position:sticky;left:12px}
 .pxh{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;margin-bottom:8px}
 .pxh .pbest{margin-left:auto}
 .pxbox .tw{background:#fff}
 .mt .pbtn{cursor:pointer;white-space:nowrap}
 .mt .pbtn.on{background:var(--b);color:#fff}
-.mt.pes td:nth-child(3){min-width:150px}
-.mt.pes td:nth-child(3) input,.mt.pes td:nth-child(4) input{width:100%;min-width:130px}
+.mt.pes td{padding:5px 6px!important;height:auto!important}
+.mt.pes th:nth-child(2){width:17%}.mt.pes th:nth-child(9){width:10%}.mt.pes th:nth-child(10){width:15%}
+.mt.pes select.sg{padding-left:6px;padding-right:2px}
+.mt.pes tr.gug td{background:#ffecec!important}
