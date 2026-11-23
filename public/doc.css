@@ -70,3 +70,16 @@
 .hero h2.gh{display:flex;align-items:center;gap:14px;font-size:32px;line-height:1.15;max-width:calc(100% - 190px)}
 .hero .gi{flex:none;display:grid;place-items:center;width:56px;height:56px;border-radius:50%;background:var(--soft);font-size:32px;box-shadow:0 4px 12px #1f2f6a1f}
 @media(max-width:700px){.hero h2.gh{font-size:24px;max-width:100%}.hero .gi{width:44px;height:44px;font-size:24px}}
+
+/* tab dalam paket monitoring */
+.dtabs{display:flex;gap:8px;margin:12px 0 4px}
+.dtabs a{padding:8px 16px;border-radius:999px;background:var(--soft);font-weight:700;font-size:13px;cursor:pointer}
+.dtabs a small{margin-left:4px;opacity:.7}
+.dtabs a.on{background:var(--b);color:#fff}
+.mt.pes{min-width:1000px}
+.mt.pes input{width:100%}
+.mt.pes .c{width:64px;text-align:center}
+.mt.pes .su{width:80px}
+.mt.pes .n{width:110px;text-align:right}
+.mt.pes .n.tt{width:170px}
+.mt.pes .nm{min-width:200px}
