@@ -39,7 +39,7 @@ const bkHasil = (l) => {
   const it = (l.hasil || []).filter((x) => (x.judul || '').trim() || (x.isi || '').trim()); if (!it.length) return '<p>......</p>';
   return it.map((x, i) => { const ls = lines(x.isi), subs = ls.filter((y) => /^[-•]/.test(y)).map((y) => y.replace(/^[-•]\s*/, '')), body = ls.filter((y) => !/^[-•]/.test(y)).join('\n'), no = `${i + 1}.`;
     const head = x.judul ? `<p class="hl l1 kn" style="margin-bottom:3pt"><span class=hn>${no}</span><span class=ht>${esc(x.judul)}</span></p>${body ? `<p class=in1 style="text-align:justify;margin-top:0">${nl(body)}</p>` : ''}` : `<p class="hl l1" style="text-align:justify"><span class=hn>${no}</span><span class=ht>${nl(body)}</span></p>`;
-    return head + (subs.length ? `<ol class=in1 style="list-style-type:lower-alpha;margin:2px 0 8px;padding-left:22px;text-align:justify">${subs.map((y) => `<li>${esc(y)}</li>`).join('')}</ol>` : ''); }).join('');
+    return head + (subs.length ? `<ol class=in1 style="list-style-type:lower-alpha;margin:2px 0 8px 7mm;padding-left:20px;text-align:justify">${subs.map((y) => `<li>${esc(y)}</li>`).join('')}</ol>` : ''); }).join('');
 };
 const bkSig = (l, p) => {
   const kp = esc(l.kepada || 'PT./CV. ......'), hd = (l.hadir || []).filter((h) => h.nama);
@@ -48,9 +48,9 @@ const bkSig = (l, p) => {
     return `<p class=kn style="margin:14px 0 4px">Tanda tangan para pihak dalam pembuktian dan klarifikasi dokumen penawaran:</p><table class=b style="width:100%"><tr><th style="width:34px">No</th><th style="width:32%">Nama</th><th>Jabatan</th><th style="width:25%">Tanda Tangan</th></tr>${rows.map((r, i) => `<tr><td style="text-align:center">${i + 1}.</td><td>${r.n}</td><td>${r.j}</td><td style="height:56px;text-align:center;vertical-align:middle">${r.s}</td></tr>`).join('')}</table>`;
   }
   const dots = '...……', tim = lines(l.tim);
-  const lst = (ttl, rows) => `<p class=kn style="margin:0 0 4px;text-align:left">${ttl}</p><table style="width:100%;border-collapse:collapse">${rows.map(([n, sg], i) => `<tr><td style="width:7mm;padding:0;height:44px;vertical-align:middle;text-align:left">${i + 1}.</td><td style="padding:0 6px 0 0;vertical-align:middle;text-align:left">${n}</td><td style="width:34%;vertical-align:middle;text-align:left">${sg || dots}</td></tr>`).join('')}</table>`;
+  const lst = (ttl, rows) => `<p class=kn style="margin:0 0 4px;text-align:left">${ttl}</p><table style="width:100%;border-collapse:collapse">${rows.map(([n, sg], i) => `<tr><td style="width:7mm;padding:0;height:76px;vertical-align:middle;text-align:left">${i + 1}.</td><td style="padding:0 6px 0 0;vertical-align:middle;text-align:left">${n}</td><td style="width:34%;vertical-align:middle;text-align:left">${sg || dots}</td></tr>`).join('')}</table>`;
   const kiri = lst(`Pokja Pemilihan Barang/Jasa<br>${esc(p.instansi || S().instansi)}`, angOf(l).map((a) => [esc(a.p.nama), sigCell(a)])) + (tim.length ? `<div style="height:14px"></div>${lst('Tim Teknis Kegiatan', tim.map((n) => [esc(n), '']))}` : '');
-  const kanan = `<p class=kn style="margin:0;text-align:center">Mengetahui,<br>${kp}</p>${(hd.length ? hd : [{ nama: '......' }]).map((h) => `<div style="text-align:center;margin-top:8px"><div style="height:44px;line-height:44px">${dots}</div>${esc(h.nama)}${h.jabatan ? `<br><small>${esc(h.jabatan)}</small>` : ''}</div>`).join('')}`;
+  const kanan = `<p class=kn style="margin:0;text-align:center">Mengetahui,<br>${kp}</p>${(hd.length ? hd : [{ nama: '......' }]).map((h) => `<div style="text-align:center;margin-top:8px"><div style="height:76px;line-height:76px">${dots}</div>${esc(h.nama)}${h.jabatan ? `<br><small>${esc(h.jabatan)}</small>` : ''}</div>`).join('')}`;
   return `<div style="break-inside:avoid;margin-top:16px"><table style="width:100%;border-collapse:collapse"><tr><td style="width:56%;vertical-align:top;padding:0 14px 0 0">${kiri}</td><td style="vertical-align:top;padding:0">${kanan}</td></tr></table></div>`;
 };
 const bkDok = (l) => ((l.fotos || []).length ? `${PB}<p class=tc style="margin:0 0 10px">Lampiran Dokumentasi</p>${l.fotos.map((f) => `<p style="text-align:center;margin:10px 0"><img src="${f.src}" style="max-width:88%;max-height:270px">${f.cap ? `<br><span style="font-size:10pt">${esc(f.cap)}</span>` : ''}</p>`).join('')}` : '');
@@ -71,7 +71,7 @@ R.bakla = function (l, p) {
   }
   const dihadiri = hd.length ? listID(hd.map((h) => `<b>${esc(h.nama)}</b>${h.jabatan ? ` selaku ${esc(h.jabatan)} ${kp}` : ''}`)) : '......';
   return `${ttl}
-  ${kv([['Nama Klarifikasi', esc(l.nmKlar || 'Klarifikasi')], ['Nomor', nomor(l)], ['Uraian Pekerjaan', esc(l.uraian || nm)], ['Tanggal', tgl(tg)], ['Lokasi', esc(l.lokasi || '......')], ['Lampiran', esc(l.lamp ?? '-')]], 135)}
+  <p class=tc style="font-weight:400;margin-top:4px">Nomor: ${nomor(l)}</p>
   <p>Pada hari ini ${kataTgl(tg)}, Pokja Pengadaan Barang/Jasa yang ditunjuk dengan ${st.replace(/^Surat /, 'Surat Tugas ')} telah melakukan klarifikasi${l.uraian ? ` (khususnya terkait ${esc(l.uraian)})` : ''} <b>${kp}</b> bertempat di ${esc(l.lokasi || '......')}${l.alamat ? ` di ${esc(l.alamat)}` : ''}${hd.length ? ', dihadiri/didampingi oleh ' + dihadiri : ''}.</p>
   <p class=kn style="text-align:left"><b>Hasil Klarifikasi :</b></p>${bkHasil(l)}<p>${penutup}</p>${bkSig(l, p)}${bkDok(l)}`;
 };
