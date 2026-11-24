@@ -48,9 +48,9 @@ const bkSig = (l, p) => {
     return `<p class=kn style="margin:14px 0 4px">Tanda tangan para pihak dalam pembuktian dan klarifikasi dokumen penawaran:</p><table class=b style="width:100%"><tr><th style="width:34px">No</th><th style="width:32%">Nama</th><th>Jabatan</th><th style="width:25%">Tanda Tangan</th></tr>${rows.map((r, i) => `<tr><td style="text-align:center">${i + 1}.</td><td>${r.n}</td><td>${r.j}</td><td style="height:56px;text-align:center;vertical-align:middle">${r.s}</td></tr>`).join('')}</table>`;
   }
   const dots = '...……', tim = lines(l.tim);
-  const lst = (ttl, rows) => `<p class=kn style="margin:0 0 4px;text-align:left">${ttl}</p><table style="width:100%;border-collapse:collapse">${rows.map(([n, sg], i) => `<tr><td style="width:7mm;padding:0;height:76px;vertical-align:middle;text-align:left">${i + 1}.</td><td style="padding:0 6px 0 0;vertical-align:middle;text-align:left">${n}</td><td style="width:34%;vertical-align:middle;text-align:left">${sg || dots}</td></tr>`).join('')}</table>`;
+  const lst = (ttl, rows) => `<p class=kn style="margin:0 0 4px;text-align:left">${ttl}</p><table style="width:100%;border-collapse:collapse">${rows.map(([n, sg], i) => `<tr><td style="width:7mm;padding:0;height:56px;vertical-align:middle;text-align:left">${i + 1}.</td><td style="padding:0 6px 0 0;vertical-align:middle;text-align:left">${n}</td><td style="width:34%;vertical-align:middle;text-align:left">${sg || dots}</td></tr>`).join('')}</table>`;
   const kiri = lst(`Pokja Pemilihan Barang/Jasa<br>${esc(p.instansi || S().instansi)}`, angOf(l).map((a) => [esc(a.p.nama), sigCell(a)])) + (tim.length ? `<div style="height:14px"></div>${lst('Tim Teknis Kegiatan', tim.map((n) => [esc(n), '']))}` : '');
-  const kanan = `<p class=kn style="margin:0;text-align:center">Mengetahui,<br>${kp}</p>${(hd.length ? hd : [{ nama: '......' }]).map((h) => `<div style="text-align:center;margin-top:8px"><div style="height:76px;line-height:76px">${dots}</div>${esc(h.nama)}${h.jabatan ? `<br><small>${esc(h.jabatan)}</small>` : ''}</div>`).join('')}`;
+  const kanan = `<p class=kn style="margin:0;text-align:center">Mengetahui,<br>${kp}</p>${(hd.length ? hd : [{ nama: '......' }]).map((h) => `<div style="text-align:center;margin-top:8px"><div style="height:56px"></div>${esc(h.nama)}${h.jabatan ? `<br>${esc(h.jabatan)}` : ''}</div>`).join('')}`;
   return `<div style="break-inside:avoid;margin-top:16px"><table style="width:100%;border-collapse:collapse"><tr><td style="width:56%;vertical-align:top;padding:0 14px 0 0">${kiri}</td><td style="vertical-align:top;padding:0">${kanan}</td></tr></table></div>`;
 };
 const bkDok = (l) => ((l.fotos || []).length ? `${PB}<p class=tc style="margin:0 0 10px">Lampiran Dokumentasi</p>${l.fotos.map((f) => `<p style="text-align:center;margin:10px 0"><img src="${f.src}" style="max-width:88%;max-height:270px">${f.cap ? `<br><span style="font-size:10pt">${esc(f.cap)}</span>` : ''}</p>`).join('')}` : '');
@@ -64,15 +64,15 @@ R.bakla = function (l, p) {
     return `${ttl}<p class=tc style="font-weight:400;margin-top:4px">Nomor: ${nomor(l)}</p>
     <p>Pada hari ini ${kataTgl(tg)}, kami selaku Kelompok Kerja (Pokja) Pemilihan ${nm}, berdasarkan ${st}, pada:</p>
     ${kv([['Nama Paket', nm], ['Metode Pengadaan Mini Kompetisi', esc(p.metode || 'Itemized')], ['Nama Instansi/Satuan Kerja', esc([p.instansi || S().instansi, p.satker].filter(Boolean).join('/'))], ['Nilai Pagu Anggaran', rpd(num(p.pagu))], ['Nilai Harga Perkiraan Sendiri (HPS)', rpd(num(p.hps))], ['Sumber Anggaran', esc(p.sumber)], ['Lokasi Pekerjaan/Pengiriman', esc(p.lokasi)], ['Waktu Pelaksanaan Pekerjaan/Tanggal Penyelesaian Pekerjaan', tgl(p.waktu)]], 215)}
-    <p>Pokja Pemilihan Barang/Jasa telah melakukan pembuktian dan klarifikasi dokumen penawaran <b>${kp}</b> dengan undangan melalui INAPROC Nomor ${esc(l.undNo || '......')} tanggal ${tgl(l.undTgl)} via Zoom Meeting${z.link ? ' ' + esc(z.link) : ''}${z.id ? ' Meeting ID: ' + esc(z.id) : ''}${z.pass ? ', Passcode: ' + esc(z.pass) : ''}. Pihak ${kp} dihadiri oleh:</p>
+    <p>Pokja Pemilihan Barang/Jasa telah melakukan pembuktian dan klarifikasi dokumen penawaran ${kp} dengan undangan melalui INAPROC Nomor ${esc(l.undNo || '......')} tanggal ${tgl(l.undTgl)} via Zoom Meeting${z.link ? ' ' + esc(z.link) : ''}${z.id ? ' Meeting ID: ' + esc(z.id) : ''}${z.pass ? ', Passcode: ' + esc(z.pass) : ''}. Pihak ${kp} dihadiri oleh:</p>
     ${kv([['Nama', esc(h0.nama || '......')], ['No Kontak', esc(h0.kontak || 'Via INAPROC')], ['Email', esc(h0.email || '......')], ['Jabatan', esc(h0.jabatan || '......')], ['Alamat', esc(h0.alamat || '......')]], 100)}
     <p class=kn>Berdasarkan hasil klarifikasi dan pembuktian dokumen penawaran yang dilaksanakan bersama ${kp}, diperoleh hasil klarifikasi sebagai berikut:</p>
     ${bkHasil(l)}<p>${penutup}</p>${bkSig(l, p)}${bkDok(l)}`;
   }
-  const dihadiri = hd.length ? listID(hd.map((h) => `<b>${esc(h.nama)}</b>${h.jabatan ? ` selaku ${esc(h.jabatan)} ${kp}` : ''}`)) : '......';
+  const dihadiri = hd.length ? listID(hd.map((h) => `${esc(h.nama)}${h.jabatan ? ` selaku ${esc(h.jabatan)} ${kp}` : ''}`)) : '......';
   return `${ttl}
   <p class=tc style="font-weight:400;margin-top:4px">Nomor: ${nomor(l)}</p>
-  <p>Pada hari ini ${kataTgl(tg)}, Pokja Pengadaan Barang/Jasa yang ditunjuk dengan ${st.replace(/^Surat /, 'Surat Tugas ')} telah melakukan klarifikasi${l.uraian ? ` (khususnya terkait ${esc(l.uraian)})` : ''} <b>${kp}</b> bertempat di ${esc(l.lokasi || '......')}${l.alamat ? ` di ${esc(l.alamat)}` : ''}${hd.length ? ', dihadiri/didampingi oleh ' + dihadiri : ''}.</p>
+  <p>Pada hari ini ${kataTgl(tg)}, Pokja Pengadaan Barang/Jasa yang ditunjuk dengan ${st.replace(/^Surat /, 'Surat Tugas ')} telah melakukan klarifikasi${l.uraian ? ` (khususnya terkait ${esc(l.uraian)})` : ''} ${kp} bertempat di ${esc(l.lokasi || '......')}${l.alamat ? ` di ${esc(l.alamat)}` : ''}${hd.length ? ', dihadiri/didampingi oleh ' + dihadiri : ''}.</p>
   <p class=kn style="text-align:left"><b>Hasil Klarifikasi :</b></p>${bkHasil(l)}<p>${penutup}</p>${bkSig(l, p)}${bkDok(l)}`;
 };
 
