@@ -104,3 +104,12 @@
 .pxs b{color:var(--ink,#1b2440)}
 .mt.pes td.pct{font-weight:700;color:#2f4bbd;white-space:nowrap}
 .mt.det input.hps{min-width:130px}
+
+/* Dokumen mini kompetisi: judul bab menggantung, sub-bab (A. B. C.) menjorok, isi sejajar teks judulnya */
+.sheet h4.mh,.sheet h4.sh{display:flex;align-items:baseline}
+.sheet h4.mh .mn{flex:none;width:11mm}.sheet h4.sh{margin:12pt 0 6pt 11mm}.sheet h4.sh .mn{flex:none;width:8mm}
+.sheet .dm1{margin-left:11mm}
+.sheet .dm2{margin-left:19mm}
+.sheet ol.dm1,.sheet ol.dm2{padding-left:22px}
+.sheet table.b.dm1{width:calc(100% - 11mm)}.sheet table.b.dm2{width:calc(100% - 19mm)}
+.sheet table.b.dm1{margin-left:11mm!important}.sheet table.b.dm2{margin-left:19mm!important}

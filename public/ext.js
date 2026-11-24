@@ -398,7 +398,7 @@ R.dmk = function (l, p, v) {
   h = h.replace(`<tr><td>1</td><td>${esc(p.nama)}</td><td style="text-align:center">${esc(p.rup)}</td></tr>`, ps.map((q, i) => `<tr><td>${i + 1}</td><td>${esc(q.nama)}</td><td style="text-align:center">${esc(q.rup)}</td></tr>`).join(''));
   h = h.replace('1 (satu) paket', `${n} (${tb(n)}) paket`);
   const kb = lines(l.kbli);
-  if (l.kbliOn && kb.length) h = h.replace(/(Kategori Tingkat III<\/th><td>[^<]*<\/td><\/tr><\/table>)/, `$1<p style="margin:8px 0 2px">Klasifikasi Baku Lapangan Usaha Indonesia (KBLI) yang dipersyaratkan bagi Penyedia Katalog:</p>${ol(kb.map(esc))}`);
+  if (l.kbliOn && kb.length) h = h.replace(/(Kategori Tingkat III<\/th><td>[^<]*<\/td><\/tr><\/table>)/, `$1<p class=dm2 style="margin:8px 0 2px">Klasifikasi Baku Lapangan Usaha Indonesia (KBLI) yang dipersyaratkan bagi Penyedia Katalog:</p>${ol(kb.map(esc), 'class=dm2')}`);
   return h;
 };
 FB.dmk = function () {
