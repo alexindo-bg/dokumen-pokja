@@ -296,7 +296,8 @@ function tempatRows(l) {
   const z = zoomOf(l), dar = (l.cara || 'Daring') === 'Daring';
   return [['Tempat', dar ? `Zoom Meeting (Meeting ID: ${esc(z.id)}; Passcode: ${esc(z.pass)})` : esc(z.tempat)]].concat(dar && z.link ? [['Tautan', `<a href="${esc(z.link)}" style="color:#0645ad">${esc(z.link)}</a>`]] : []);
 }
-const ttdUndang = (l) => { const p = D.pokja.find((x) => x.id === l.ttd) || {}; return `<div class=ttd>${esc(l.an || S().an)}<br>${esc(l.ub || S().unitBaris)}${l.scan !== false && p.ttd ? sigImg(p) : '<br><br><br>'}<span style="${l.garis ? 'text-decoration:underline' : ''}">${esc(p.nama || '')}</span></div>`; };
+const ttdUndang = (l) => { const p = D.pokja.find((x) => x.id === l.ttd) || {}; return `<div class=ttd>${esc(l.an || S().an)}<br>${esc(l.ub || S().unitBaris)}${l.scan !== false && p.ttd ? sigImg(p) : '<br><br><br>'}<span style="${l.garis ? 'text-decoration:underline' : ''}">${esc(p.nama || '')}</span>${l.nipUd !== false && p.nip ? `<br>NIP ${esc(p.nip)}` : ''}</div>`; };
+const ttdBox = () => sec(5, 'Penandatangan', `<div class=fld><label>Ditandatangani oleh</label><select data-k=ttd>${D.pokja.map((q) => `<option value="${q.id}" ${q.id === L.ttd ? 'selected' : ''}>${esc(q.nama)}${q.nip ? ' · NIP ' + esc(q.nip) : ''}</option>`).join('')}</select></div>${chk('nipUd', 'Tampilkan NIP di bawah nama', true)}${chk('scan', 'Bubuhkan tanda tangan (scan TTD)', true)}`);
 const angOf = (l) => (l.angs || []).map((a) => ({ p: D.pokja.find((x) => x.id === a.id), ttd: a.ttd })).filter((x) => x.p);
 const sigCell = (a) => (a.ttd && a.p.ttd ? `<img src="${a.p.ttd}" style="max-height:52px;max-width:120px">` : '');
 const angTable = (l, o = {}) => `<div style="break-inside:avoid">${o.title ? `<p ${o.plain ? 'style="margin:16px 0 6px;text-align:center;font-weight:400"' : 'class=tc style="margin:16px 0 6px"'}>${esc(o.title)}</p>` : '<div style="height:6px"></div>'}<table class=b style="break-inside:avoid;width:100%"><tr><th style="width:34px">No</th><th>Nama Anggota Pokja Pemilihan</th><th style="width:27%">Jabatan</th><th style="width:25%">Tanda Tangan</th></tr>${angOf(l).map((a, i) => `<tr><td>${i + 1}.</td><td>${esc(a.p.nama)}${a.p.nip ? `<br>NIP ${esc(a.p.nip)}` : ''}</td><td>Anggota Pokja Pemilihan${o.num === false ? '' : ' ' + (i + 1)}</td><td style="height:60px;text-align:center;vertical-align:middle">${sigCell(a)}</td></tr>`).join('')}</table></div>`;
@@ -476,6 +477,7 @@ const FB = {
     return sec(2, 'Dokumen yang direviu', `<div class=qk><small>Cepat:</small>${PRE.map((x, i) => `<a data-act="pre:${i}">${x[0]}</a>`).join('')}</div>${chips('docs', DOKS, L.docs)}${chk('konsol', 'Diawali konsolidasi', true)}`)
       + sec(3, 'Waktu reviu', `<div class=g3>${fx('tglKeg', 'Tanggal', { t: 'date' })}${fx('jam', 'Mulai', { list: 'jamdl' })}<div class=fld><label>Cara</label>${seg('cara', CARA)}</div></div>${quick('tglKeg', [['Hari ini', qdate(0)], ['Hari kerja berikut', qdate(1)], ['+2 hari kerja', qdate(2)], ['+5 hari kerja', qdate(5)]])}${quick('jam', ['09.00', '10.00', '13.30', '14.00'].map((x) => [x, x]))}${zoomBox()}`)
       + sec(4, 'Nomor & tanggal', numBox())
+      + ttdBox()
       + more('Lainnya — penerima, nama kegiatan, perihal, tembusan, penandatangan', `<label>Penerima undangan</label>${['ppk:Pejabat Pembuat Komitmen (dari data paket)', 'tim:Tim Teknis Kegiatan', 'pokja:Kelompok Kerja Pemilihan Penyedia (nama paket otomatis)'].map((x) => { const [k, n] = x.split(':'); return `<label class=cbx><input type=checkbox data-pen=${k} ${(L.pen || {})[k] ? 'checked' : ''}>${n}</label>`; }).join('')}${fx('lain', 'Penerima lain (satu per baris)', { area: 1 })}${ovf('kegiatan', 'Nama kegiatan')}${ovf('hal', 'Hal')}${fx('tambah', 'Paragraf tambahan (boleh kosong)', { area: 1 })}${fx('penutup', 'Kalimat penutup', { val: S().penutup })}${ovf('tembusan', 'Tembusan (satu per baris, kosong = tanpa tembusan)')}${fx('di', 'di (kota/alamat tujuan)', { val: 'Tempat' })}${tataSurat()}`);
   },
   bukti() {
@@ -483,6 +485,7 @@ const FB = {
     return sec(2, 'Penyedia yang diundang (Yth. Direktur PT./CV. …)', `<div class=chs>${ws.map((n) => `<span class="ch ${L.kepada === n ? 'on' : ''}" data-q="kepada=${esc(n)}">${L.kepada === n ? '✓ ' : ''}${esc(n)}</span>`).join('')}</div>${fx('kepada', 'Nama penyedia (tertulis “Direktur …” pada surat)', { ph: 'mis. PT. Dharma Ayu Tani' })}${fx('di', 'di (alamat / “Tempat”)', { val: 'Tempat' })}`)
       + sec(3, 'Waktu pembuktian', `<div class=g3>${fx('tglKeg', 'Tanggal', { t: 'date' })}${fx('jam', 'Mulai', { list: 'jamdl' })}<div class=fld><label>Cara</label>${seg('cara', CARA)}</div></div>${quick('tglKeg', [['Hari ini', qdate(0)], ['Hari kerja berikut', qdate(1)], ['+2 hari kerja', qdate(2)]])}${zoomBox()}`)
       + sec(4, 'Nomor & tanggal', numBox())
+      + ttdBox()
       + more('Lainnya — perihal, paragraf, tembusan, penandatangan, lampiran', `${ovf('minta', 'Paragraf permintaan dokumen (boleh kosong)')}${fx('penutup', 'Kalimat penutup', { val: S().penutup })}${ovf('tembusan', 'Tembusan (satu per baris, kosong = tanpa tembusan)')}${ovf('hal', 'Hal')}${tataSurat()}`);
   },
   ubah() {
@@ -549,7 +552,7 @@ function wire() {
     else if (d.copy !== undefined) { if (!x.value) return; L.angs = clone(D.surat.find((y) => y.id === x.value).angs); rr(); return; }
     else return;
     if (d.p && /\.(st|win)$|^win$/.test(d.p) && e.type === 'change') { rr(); return; }
-    if (e.type === 'change' && (d.k === 'konsol' || d.k === 'ttd' || d.k === 'akun' || d.k === 'jenisMK' || d.p === 'win')) { rr(); return; }
+    if (e.type === 'change' && (d.k === 'konsol' || d.k === 'scan' || d.k === 'nipUd' || d.k === 'ttd' || d.k === 'akun' || d.k === 'jenisMK' || d.p === 'win')) { rr(); return; }
     after();
   };
   f.onpaste = (e) => { const x = e.target; if (!x.dataset.paste) return; e.preventDefault(); const rows = parsePaste(e.clipboardData.getData('text')); if (rows.length) { setP(L, x.dataset.paste, rows); rr(); } };
