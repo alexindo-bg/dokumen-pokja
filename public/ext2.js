@@ -123,7 +123,7 @@ const _pktDetail2 = pktDetail;
 pktDetail = function () {
   _pktDetail2();
   const p = D.paket.find((x) => x.id === curPk); if (!p) return; const I = pktInfo(p.id), has = (t) => I.ls.some((s) => s.tpl === t);
-  const ck = [['Dokumen mini kompetisi', has('dmk')], ['Undangan reviu', has('reviu')], ['BA perubahan paket', has('ubah'), 1], ['BA hasil evaluasi', has('eval')], ['BA negosiasi harga', has('nego'), 1], ['Undangan pembuktian', has('bukti')], ['Laporan hasil pemilihan', has('lap')], ['Data paket lengkap (HPS, ST, RUP)', !!(num(p.hps) && p.stNo && p.rup)]];
+  const ck = [['Dokumen mini kompetisi', has('dmk')], ['Undangan reviu', has('reviu')], ['BA perubahan paket', has('ubah'), 1], ['BA hasil evaluasi', has('eval')], ['BA negosiasi harga', has('nego'), 1], ['Undangan pembuktian', has('bukti')], ['BA hasil klarifikasi', has('bakla'), 1], ['Laporan hasil pemilihan', has('lap')], ['Data paket lengkap (HPS, ST, RUP)', !!(num(p.hps) && p.stNo && p.rup)]];
   const req = ck.filter((x) => !x[2]), pc = Math.round((req.filter((x) => x[1]).length / req.length) * 100);
   $('#main').insertAdjacentHTML('beforeend', `<div class=card style="margin-top:16px"><div style="display:flex;gap:20px;align-items:center;flex-wrap:wrap"><div class=ring style="--v:${pc}"><b>${pc}%</b></div><div style="flex:1;min-width:260px"><h3 style="margin-bottom:8px">Kelengkapan dokumen paket</h3><div class=ckl>${ck.map(([n, ok, opt]) => `<span class="${ok ? 'ok' : 'no'}">${ok ? '✓' : '○'} ${n}${opt ? ' <small>(bila perlu)</small>' : ''}</span>`).join('')}</div></div><button class=btn id=dup>Duplikat paket</button></div></div>`);
   $('#dup').onclick = () => { const c = { ...clone(p), id: uid(), nama: p.nama + ' (salinan)' }; D.paket.push(c); dirty(); curPk = c.id; shell(); };

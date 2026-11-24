@@ -7,7 +7,7 @@
    Setiap halaman berukuran kertas penuh (margin ada di dalam halaman) sehingga cetak/PDF persis seperti pratinjau. */
 const PGZ = { A4: [210, 297], F4: [215, 330], Letter: [215.9, 279.4] };
 const PGM = { t: 20, r: 20, b: 20, l: 25 }; // margin halaman (mm)
-const PNO = { eval: 'n', ubah: 'n', batal: 'n', nego: 'n', bareviu: 'n', dmk: 'n2', lap: 'h2' }; // nomor halaman: n = semua, n2/h2 = mulai halaman 2
+const PNO = { eval: 'n', ubah: 'n', batal: 'n', nego: 'n', bareviu: 'n', bakla: 'n', dmk: 'n2', lap: 'h2' }; // nomor halaman: n = semua, n2/h2 = mulai halaman 2
 const mmPx = (mm) => (mm * 96) / 25.4;
 
 function paginate(html, wMm, hMm) {

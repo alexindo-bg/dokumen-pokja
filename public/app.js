@@ -332,7 +332,7 @@ const R = {
     ${l.tambah ? `<p>${nl(l.tambah)}</p>` : ''}<p>${esc(l.penutup ?? S().penutup)}</p>${ttdUndang(l)}${tembus(gv(l, 'tembusan'))}`;
   },
   bukti(l, p, v) {
-    return `${jt(l, 'UNDANGAN')}${headBlock(l, gv(l, 'hal'))}${yth([`${l.sap || ''} ${l.dir || ''}`.trim(), l.kepada || '......'], l.di)}
+    return `${jt(l, 'UNDANGAN')}${headBlock(l, gv(l, 'hal'))}${yth([/^direktur\b/i.test(l.kepada || '') ? l.kepada : `Direktur ${l.kepada || 'PT./CV. ......'}`], l.di)}
     <p style="margin-top:20px">${esc(fill(tx('buktiIsi'), v)).replace(/secara (daring|luring)\.?$/, '<b>secara $1</b>.')}</p><p style="margin-bottom:4px">Sehubungan dengan hal tersebut kami mengharapkan kehadiran Saudara pada:</p>
     ${kv([['Hari/Tanggal', l.tglKeg ? `${hari(l.tglKeg)}, ${tgl(l.tglKeg)}` : '…………'], ['Waktu', `${esc(l.jam)} ${S().zona} – Selesai`], ...tempatRows(l), ['Acara', 'Rapat Pembuktian dan Klarifikasi Kualifikasi']], 100)}
     <p>${esc(gv(l, 'minta'))}<br>${esc(l.penutup ?? S().penutup)}</p>${ttdUndang(l)}${tembus(gv(l, 'tembusan'))}`;
@@ -480,7 +480,7 @@ const FB = {
   },
   bukti() {
     const ws = [...new Set(D.surat.filter((s) => s.pid === L.pid && s.tpl === 'eval').map((s) => { norm(s); const w = winnerOf(itemsPes(s), s.items[0].win); return w && w.nama; }).filter(Boolean))];
-    return sec(2, 'Penyedia yang diundang', `<div class=chs>${ws.map((n) => `<span class="ch ${L.kepada === n ? 'on' : ''}" data-q="kepada=${esc(n)}">${L.kepada === n ? '✓ ' : ''}${esc(n)}</span>`).join('')}</div>${fx('kepada', 'Nama penyedia (perusahaan)', { ph: '+ Ketik nama' })}<div class=g3>${fx('sap', 'Sapaan', { opts: ['Bapak', 'Ibu', 'Saudara'] })}${fx('dir', 'Nama direktur/kuasa', { cls: 'sp2' })}</div>${fx('di', 'di (alamat / “Tempat”)', { val: 'Tempat' })}`)
+    return sec(2, 'Penyedia yang diundang (Yth. Direktur PT./CV. …)', `<div class=chs>${ws.map((n) => `<span class="ch ${L.kepada === n ? 'on' : ''}" data-q="kepada=${esc(n)}">${L.kepada === n ? '✓ ' : ''}${esc(n)}</span>`).join('')}</div>${fx('kepada', 'Nama penyedia (tertulis “Direktur …” pada surat)', { ph: 'mis. PT. Dharma Ayu Tani' })}${fx('di', 'di (alamat / “Tempat”)', { val: 'Tempat' })}`)
       + sec(3, 'Waktu pembuktian', `<div class=g3>${fx('tglKeg', 'Tanggal', { t: 'date' })}${fx('jam', 'Mulai', { list: 'jamdl' })}<div class=fld><label>Cara</label>${seg('cara', CARA)}</div></div>${quick('tglKeg', [['Hari ini', qdate(0)], ['Hari kerja berikut', qdate(1)], ['+2 hari kerja', qdate(2)]])}${zoomBox()}`)
       + sec(4, 'Nomor & tanggal', numBox())
       + more('Lainnya — perihal, paragraf, tembusan, penandatangan, lampiran', `${ovf('minta', 'Paragraf permintaan dokumen (boleh kosong)')}${fx('penutup', 'Kalimat penutup', { val: S().penutup })}${ovf('tembusan', 'Tembusan (satu per baris, kosong = tanpa tembusan)')}${ovf('hal', 'Hal')}${tataSurat()}`);

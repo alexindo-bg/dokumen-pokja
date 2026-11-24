@@ -227,7 +227,7 @@ function pktNext(I) {
   if (I.last.st === 'batal') return { t: `Tayang ${I.last.n} dibatalkan. Siapkan tayang ${I.last.n + 1}.`, b: `Isi BA hasil evaluasi tayang ${I.last.n + 1}`, tpl: 'eval', ex: { tayang: String(I.last.n + 1) }, b2: ['Perpanjang / ubah paket', 'ubah', { tayang: String(I.last.n + 1) }] };
   if (I.last.st === 'jalan') return { t: `Tayang ${I.last.n} sedang berjalan. Isi peserta dari papan peringkat setelah penayangan selesai.`, b: 'Isi BA hasil evaluasi', ...(I.last.eval ? o(I.last.eval) : { tpl: 'eval', ex: { tayang: String(I.last.n) } }), c: ['BA pembatalan (tanpa/1 penawar)', 'batal', { tayang: String(I.last.n) }] };
   if (!I.bukti) return { t: 'Pemenang sudah ditetapkan. Lanjutkan klarifikasi & pembuktian kualifikasi.', b: 'Buat undangan pembuktian', tpl: 'bukti', b2: ['BA kesepakatan negosiasi harga', 'nego', { tayang: String(I.last.n) }] };
-  return { t: 'Pembuktian selesai. Susun laporan hasil pemilihan untuk PPK.', b: 'Buat laporan hasil pemilihan', tpl: 'lap' };
+  return { t: 'Pembuktian selesai. Susun BA hasil klarifikasi dan laporan hasil pemilihan untuk PPK.', b: 'Buat laporan hasil pemilihan', tpl: 'lap', b2: ['BA hasil klarifikasi', 'bakla', {}] };
 }
 const guessTayang = (pid, tpl) => {
   const I = pktInfo(pid); if (!I.last) return '1';
